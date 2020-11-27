@@ -27,7 +27,7 @@ contract CryptoSneaker is IERC721, ERC165 {
         int8 size;
     }
 
-    // Creates an empty array of Pizza structs
+    // Creates an empty array of Sneaker structs
     Sneaker[] public sneakers;
 
     // Mapping from owner's address to id of sneaker pair
@@ -42,14 +42,11 @@ contract CryptoSneaker is IERC721, ERC165 {
     // You can nest mappings, this example maps owner to operator approvals
     mapping(address => mapping(address => bool)) private operatorApprovals;
 
-    // Internal function to create a random Pizza from string (name) and DNA
+    // Internal function to create a Sneaker from string (name) and DNA
     function _sneaker(address _manufacturer, uint128 _id, string memory _name, int8 _size)
         internal
-        // `isUnique` is a function modifier that checks if the pizza already exists
-        // Learn more: https://solidity.readthedocs.io/en/v0.5.10/structure-of-a-contract.html#function-modifiers
-        isUnique(_name, _dna)
     {
-        // Adds Pizza to array of Pizzas and get id
+        // Adds Sneaker to array of Sneakers and get id
         uint256 id = SafeMath.sub(sneakers.push(Sneaker(_manufacturer, _id, _name, _size)), 1);
 
         assert(pairToOwner[id] == address(0));
@@ -61,11 +58,6 @@ contract CryptoSneaker is IERC721, ERC165 {
         );
     }
 
-    // Creates a random Pizza from string (name)
-    function createRandomPizza(string memory _name) public {
-        uint256 randDna = generateRandomDna(_name, msg.sender);
-        _createPizza(_name, randDna);
-    }
 
     // Returns array of Sneakers found by owner
     function getPairsByOwner(address _owner)
@@ -108,11 +100,11 @@ contract CryptoSneaker is IERC721, ERC165 {
      * `bytes4(keccak256("onERC721Received(address,address,uint256,bytes)"))`;
      * otherwise, the transfer is reverted.
     */
-    function safeTransferFrom(address from, address to, uint256 pizzaId)
+    function safeTransferFrom(address from, address to, uint256 sneakerId)
         public
     {
         // solium-disable-next-line arg-overflow
-        this.safeTransferFrom(from, to, pizzaId, "");
+        this.safeTransferFrom(from, to, sneakerId, "");
     }
 
     /**
@@ -161,13 +153,13 @@ contract CryptoSneaker is IERC721, ERC165 {
     function burn(uint256 _sneakerId) external {
         require(msg.sender != address(0), "Invalid address.");
         require(_exists(_sneakerId), "Sneaker does not exist.");
-        require(_isApprovedOrOwner(msg.sender, _pizzaId), "Address is not approved.");
+        require(_isApprovedOrOwner(msg.sender, _sneakerId), "Address is not approved.");
 
         ownerPairsCount[msg.sender] = SafeMath.sub(
             ownerPairsCount[msg.sender],
             1
         );
-        pizzaToOwner[_pizzaId] = address(0);
+        pairToOwner[_sneakerId] = address(0);
     }
 
     // Returns count of Sneakers by address
@@ -178,7 +170,7 @@ contract CryptoSneaker is IERC721, ERC165 {
     // Returns owner of the Sneaker found by id
     function ownerOf(uint256 _sneakerId) public view returns (address _owner) {
         address owner = pairToOwner[_sneakerId];
-        require(owner != address(0), "Invalid Pizza ID.");
+        require(owner != address(0), "Invalid Sneaker ID.");
         return owner;
     }
 
@@ -205,7 +197,7 @@ contract CryptoSneaker is IERC721, ERC165 {
      */
     function _clearApproval(address owner, uint256 _sneakerId) private {
         require(pairToOwner[_sneakerId] == owner, "Must be sneaker owner.");
-        require(_exists(_sneakerId), "Pizza does not exist.");
+        require(_exists(_sneakerId), "Sneaker does not exist.");
         if (sneakerApprovals[_sneakerId] != address(0)) {
             sneakerApprovals[_sneakerId] = address(0);
         }
@@ -239,11 +231,11 @@ contract CryptoSneaker is IERC721, ERC165 {
 
     // Checks if Sneaker exists
     function _exists(uint256 _sneakerId) internal view returns (bool) {
-        address owner = pizzaToOwner[_sneakerId];
+        address owner = pairToOwner[_sneakerId];
         return owner != address(0);
     }
 
-    // Checks if address is owner or is approved to transfer Pizza
+    // Checks if address is owner or is approved to transfer Sneaker
     function _isApprovedOrOwner(address spender, uint256 sneakerId)
         internal
         view
@@ -256,22 +248,6 @@ contract CryptoSneaker is IERC721, ERC165 {
         return (spender == owner ||
             this.getApproved(sneakerId) == spender ||
             this.isApprovedForAll(owner, spender));
-    }
-
-    // Check if Pizza is unique and doesn't exist yet
-    modifier isUnique(string memory _name, uint256 _dna) {
-        bool result = true;
-        for (uint256 i = 0; i < pizzas.length; i++) {
-            if (
-                keccak256(abi.encodePacked(pizzas[i].name)) ==
-                keccak256(abi.encodePacked(_name)) &&
-                pizzas[i].dna == _dna
-            ) {
-                result = false;
-            }
-        }
-        require(result, "Pizza with such name already exists.");
-        _;
     }
 
     // Returns whether the target address is a contract
