@@ -58,6 +58,7 @@ contract CryptoSneaker is CustomERC721, AccessControl {
     function requestManufacturerRole() public payable {
         require(msg.value > 0, "Request amount must be greater than 0");
         require(!hasRole(MANUFACTURER_ROLE, msg.sender), "Sender is already the manufacturer");
+        require(requestedManufacturers[msg.sender] == 0, "Already pending request");
         requestedManufacturers[msg.sender] = msg.value;
     }
     
