@@ -12,14 +12,15 @@ import "../node_modules/@openzeppelin/contracts/utils/Counters.sol";
 
 contract CryptoSneaker is CustomERC721, AccessControl {
     using SafeMath for uint256;
+    using EnumerableSet for EnumerableSet.UintSet;
     Counters.Counter internal _tokenIds;
-    
     
     bytes32 public constant MANUFACTURER_ROLE = keccak256("MANUFACTURER_ROLE");
     bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
 
    // Mappint from manufacturer candidate to the amount they offer for joining the manufacturer club
     mapping(address => uint) public requestedManufacturers;
+
     
 
     constructor() public CustomERC721("CryptoSneaker", "CS") {
@@ -34,22 +35,22 @@ contract CryptoSneaker is CustomERC721, AccessControl {
         string name; // name of the model
     }
 
-    mapping (uint256 => Sneaker) _sneakers;
-
+    mapping (uint256 => Sneaker) public sneakers;
+    mapping (bytes32 => uint256) private _sneakerHashes;
 
     // Internal function to create a Sneaker from string (name) and DNA
-    function _sneaker(address _manufacturer, uint32 _id, string memory _name, uint8 _size)
-        internal
-        isUnique(_manufacturer, _id)
-    {
+    function _sneaker(address _manufacturer, uint32 _id, string memory _name, uint8 _size) internal {
         require(bytes(_name).length < 50, "Sneaker name is too long, expected up to 50 characters");
 
         Counters.increment(_tokenIds);
-        uint256 newItemId = Counters.current(_tokenIds);
+        uint256 newTokenId = Counters.current(_tokenIds);
         
-        _mint(_manufacturer, newItemId);
-        _setTokenURI(newItemId, _name);
-        _sneakers[newItemId] = Sneaker(_manufacturer, _id, _size, _name);
+        _mint(_manufacturer, newTokenId);
+        _setTokenURI(newTokenId, _name);
+        
+        _sneakerHashes[keccak256(abi.encodePacked(_manufacturer, _id))] = newTokenId;
+
+        sneakers[newTokenId] = Sneaker(_manufacturer, _id, _size, _name);
     }
     
     // Anybody who wants to become manufacturer has to request it and send some amount of currency
@@ -75,6 +76,7 @@ contract CryptoSneaker is CustomERC721, AccessControl {
     // Creates a random Pizza from string (name)
     function mint(uint32 _modelID, string memory _name, uint8 _size) public {
         require(hasRole(MANUFACTURER_ROLE, msg.sender),"Requires manufacturer role");
+        require(_sneakerHashes[keccak256(abi.encodePacked(msg.sender, _modelID))] == 0,  "Given manufacturer already has created a sneaker with given model id");
         _sneaker(msg.sender, _modelID, _name, _size);
     }
 
@@ -90,22 +92,5 @@ contract CryptoSneaker is CustomERC721, AccessControl {
             result[i] = _holderTokens[_owner].at(i);
         }
         return result;
-    }
-    
-    // TODO: burn token
-
-    modifier isUnique(address _manufacturer, uint _modelID) {
-        // bool result = true;
-        // for (uint256 i = 0; i < sneakers.length; i++) {
-        //     if (
-        //         sneakers[i].modelID == _modelID && 
-        //         sneakers[i].manufacturer == _manufacturer
-        //     ) {
-        //         result = false;
-        //     }
-        // }
-        // require(result, "Given manufacturer already has created snear with given model id");
-        // _;
-        _;
     }
 }
