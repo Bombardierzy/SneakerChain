@@ -1,37 +1,38 @@
-pragma solidity ^0.5.10;
+pragma solidity ^0.7.0;
 
-// Imports symbols from other files into the current contract.
-// In this case, a series of helper contracts from OpenZeppelin.
-// Learn more: https://solidity.readthedocs.io/en/v0.5.10/layout-of-source-files.html#importing-other-source-files
-import "../node_modules/@openzeppelin/contracts/token/ERC721/IERC721.sol";
-import "../node_modules/@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
-import "../node_modules/@openzeppelin/contracts/introspection/ERC165.sol";
-import "../node_modules/@openzeppelin/contracts/math/SafeMath.sol";
+import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
+import "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
+import "@openzeppelin/contracts/introspection/ERC165.sol";
+import "@openzeppelin/contracts/math/SafeMath.sol";
+import "@openzeppelin/contracts/ownership/Ownable.sol";
+import "@openzeppelin/contracts/access/Roles.sol";
 
-// The `is` keyword is used to inherit functions and keywords from external contracts.
-// In this case, `CryptoSneaker` inherits from the `IERC721` and `ERC165` contracts.
-// Learn more: https://solidity.readthedocs.io/en/v0.5.10/contracts.html#inheritance
-contract CryptoSneaker is IERC721, ERC165 {
-    // Uses OpenZeppelin's SafeMath library to perform arithmetic operations safely.
-    // Learn more: https://docs.openzeppelin.com/contracts/2.x/api/math#SafeMath
+// TODO:
+// - allow to revert manufacturer requests
+
+contract CryptoSneaker is IERC721, ERC165, Ownable {
     using SafeMath for uint256;
+    using Roles for Roles.Role;
+
+    Roles.Role private _manufacturers;
 
     bytes4 private constant _ERC721_RECEIVED = 0x150b7a02;
 
-    // Struct types let you define your own type
-    // Learn more: https://solidity.readthedocs.io/en/v0.5.10/types.html#structs
     struct Sneaker {
-        address manufacturer;
-        uint256 id;
-        string name;
-        int8 size;
+        address manufacturer; // address of the manufacturere that minted the sneaker
+        uint32 modelID; // unique id of the sneaker model, should be unique among all manufacturer models, can repeat among others
+        string name; // name of the model
+        int8 size; // sneaker size
     }
 
     // Creates an empty array of Sneaker structs
     Sneaker[] public sneakers;
 
-    // Mapping from owner's address to id of sneaker pair
+    // Mapping from sneaker pair to the owner 
     mapping(uint256 => address) public pairToOwner;
+    
+    // Mappint from manufacturer candidate to the amount they offer for joining the manufacturer club
+    mapping(address => uint) public requestedManufacturers;
 
     // Mapping from owner's address to number of owned sneaker pairs
     mapping(address => uint256) public ownerPairsCount;
@@ -43,12 +44,15 @@ contract CryptoSneaker is IERC721, ERC165 {
     mapping(address => mapping(address => bool)) private operatorApprovals;
 
     // Internal function to create a Sneaker from string (name) and DNA
-    function _sneaker(address _manufacturer, uint128 _id, string memory _name, int8 _size)
+    function _sneaker(address _manufacturer, uint32 _id, string memory _name, int8 _size)
         internal
+        isUnique(_manufacturer, _id)
     {
+        require(bytes(_name).length < 50, "Sneaker name is too long, expected up to 50 characters");
+
         // Adds Sneaker to array of Sneakers and get id
         uint256 id = SafeMath.sub(sneakers.push(Sneaker(_manufacturer, _id, _name, _size)), 1);
-
+        
         assert(pairToOwner[id] == address(0));
 
         pairToOwner[id] = msg.sender;
@@ -56,6 +60,34 @@ contract CryptoSneaker is IERC721, ERC165 {
             ownerPairsCount[msg.sender],
             1
         );
+    }
+    
+    // Anybody who wants to become manufacturer has to request it and send some amount of currency
+    // based on that amount the contract owner can then accept the request charging from 0 up to the given amount
+    function requestManufacturerRole() public {
+        require(msg.value > 0, "Request amount must be greater than 0");
+        require(!_manufacturers.has(msg.sender), "Sender is already the manufacturer");
+        requestedManufacturers[msg.sender] = msg.value;
+    }
+    
+    // Accept the manufacturer and 
+    function approveManufacturer(address _candidate, uint _amount) public onlyOwner {
+        require(requestedManufacturers[_candidate] > 0 && requestedManufacturers[_candidate] >= _amount, "Candidate must exist and have enough amount of currency");
+
+        // refund remaining currency
+        if (requestedManufacturers[_candidate] - _amount > 0) {
+            _candidate.transfer(requestedManufacturers[_candidate] - _amount);
+        }
+        // currency has been trasnfered so delete 
+        // to prevent approving manufacturer twice 
+        delete requestedManufacturers[_candidate];
+        _manufacturers.add(candidate);
+    } 
+    
+    // Creates a random Pizza from string (name)
+    function mint(uint _modelID, string memory _name, uint _size) public {
+        require(_manufacturers.has(msg.sender), "Requires manufacturer role");
+        _sneaker(msg.sender, _modelID, _name, _size);
     }
 
 
@@ -65,7 +97,6 @@ contract CryptoSneaker is IERC721, ERC165 {
         view
         returns (uint256[] memory)
     {
-        // Learn more: https://solidity.readthedocs.io/en/v0.5.10/introduction-to-smart-contracts.html#storage-memory-and-the-stack
         uint256[] memory result = new uint256[](ownerPairsCount[_owner]);
         uint256 counter = 0;
         for (uint256 i = 0; i < sneakers.length; i++) {
@@ -242,24 +273,29 @@ contract CryptoSneaker is IERC721, ERC165 {
         returns (bool)
     {
         address owner = pairToOwner[sneakerId];
-        // Disable solium check because of
-        // https://github.com/duaraghav8/Solium/issues/175
         // solium-disable-next-line operator-whitespace
         return (spender == owner ||
             this.getApproved(sneakerId) == spender ||
             this.isApprovedForAll(owner, spender));
     }
+    
+    modifier isUnique(address _manufacturer, uint _modelID) {
+        bool result = true;
+        for (uint256 i = 0; i < sneakers.length; i++) {
+            if (
+                sneakers[i] == _modelID && 
+                sneakers[i].manufacturer == _manufacturer
+            ) {
+                result = false;
+            }
+        }
+        require(result, "Given manufacturer already has created snear with given model id");
+        _;
+    }
 
     // Returns whether the target address is a contract
     function isContract(address account) internal view returns (bool) {
         uint256 size;
-        // Currently there is no better way to check if there is a contract in an address
-        // than to check the size of the code at that address.
-        // See https://ethereum.stackexchange.com/a/14016/36603
-        // for more details about how this works.
-        // TODO Check this again before the Serenity release, because all addresses will be
-        // contracts then.
-        // solium-disable-next-line security/no-inline-assembly
         assembly {
             size := extcodesize(account)
         }
