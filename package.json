@@ -1,0 +1,25 @@
+{
+  "name": "sneakerchain",
+  "version": "1.0.0",
+  "description": "NFT for limited editions of Sneakers",
+  "main": "truffle-config.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Bombardierzy/SneakerChain.git"
+  },
+  "author": "Jakub Perzylo",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Bombardierzy/SneakerChain/issues"
+  },
+  "homepage": "https://github.com/Bombardierzy/SneakerChain#readme",
+  "dependencies": {
+    "@openzeppelin/contracts": "^3.3.0"
+  }
+}

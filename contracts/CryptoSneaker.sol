@@ -1,28 +1,35 @@
-pragma solidity ^0.7.0;
+pragma solidity ^0.6.2;
 
-import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
-import "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
-import "@openzeppelin/contracts/introspection/ERC165.sol";
-import "@openzeppelin/contracts/math/SafeMath.sol";
-import "@openzeppelin/contracts/ownership/Ownable.sol";
-import "@openzeppelin/contracts/access/Roles.sol";
+import "../node_modules/@openzeppelin/contracts/token/ERC721/IERC721.sol";
+import "../node_modules/@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
+import "../node_modules/@openzeppelin/contracts/introspection/ERC165.sol";
+import "../node_modules/@openzeppelin/contracts/math/SafeMath.sol";
+import "../node_modules/@openzeppelin/contracts/access/Ownable.sol";
+import "../node_modules/@openzeppelin/contracts/access/AccessControl.sol";
 
 // TODO:
 // - allow to revert manufacturer requests
 
-contract CryptoSneaker is IERC721, ERC165, Ownable {
+contract CryptoSneaker is IERC721, ERC165, AccessControl {
     using SafeMath for uint256;
-    using Roles for Roles.Role;
-
-    Roles.Role private _manufacturers;
-
+    
+    bytes32 public constant MANUFACTURER_ROLE = keccak256("MANUFACTURER_ROLE");
+    bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
+    
     bytes4 private constant _ERC721_RECEIVED = 0x150b7a02;
+    bytes4 private constant _INTERFACE_ID_ERC721 = 0x80ac58cd;
+
+    constructor() public {
+        _registerInterface(_INTERFACE_ID_ERC721);
+        _setupRole(ADMIN_ROLE, msg.sender);
+    }
+
 
     struct Sneaker {
         address manufacturer; // address of the manufacturere that minted the sneaker
         uint32 modelID; // unique id of the sneaker model, should be unique among all manufacturer models, can repeat among others
         string name; // name of the model
-        int8 size; // sneaker size
+        uint8 size; // sneaker size
     }
 
     // Creates an empty array of Sneaker structs
@@ -44,14 +51,15 @@ contract CryptoSneaker is IERC721, ERC165, Ownable {
     mapping(address => mapping(address => bool)) private operatorApprovals;
 
     // Internal function to create a Sneaker from string (name) and DNA
-    function _sneaker(address _manufacturer, uint32 _id, string memory _name, int8 _size)
+    function _sneaker(address _manufacturer, uint32 _id, string memory _name, uint8 _size)
         internal
         isUnique(_manufacturer, _id)
     {
         require(bytes(_name).length < 50, "Sneaker name is too long, expected up to 50 characters");
 
         // Adds Sneaker to array of Sneakers and get id
-        uint256 id = SafeMath.sub(sneakers.push(Sneaker(_manufacturer, _id, _name, _size)), 1);
+        sneakers.push(Sneaker(_manufacturer, _id, _name, _size));
+        uint256 id = sneakers.length - 1;
         
         assert(pairToOwner[id] == address(0));
 
@@ -64,29 +72,27 @@ contract CryptoSneaker is IERC721, ERC165, Ownable {
     
     // Anybody who wants to become manufacturer has to request it and send some amount of currency
     // based on that amount the contract owner can then accept the request charging from 0 up to the given amount
-    function requestManufacturerRole() public {
+    function requestManufacturerRole() public payable {
         require(msg.value > 0, "Request amount must be greater than 0");
-        require(!_manufacturers.has(msg.sender), "Sender is already the manufacturer");
+        require(!hasRole(MANUFACTURER_ROLE, msg.sender), "Sender is already the manufacturer");
         requestedManufacturers[msg.sender] = msg.value;
     }
     
     // Accept the manufacturer and 
-    function approveManufacturer(address _candidate, uint _amount) public onlyOwner {
+    function approveManufacturer(address payable _candidate, uint _amount) public {
+        require(hasRole(ADMIN_ROLE, msg.sender), "Requires admin role");
         require(requestedManufacturers[_candidate] > 0 && requestedManufacturers[_candidate] >= _amount, "Candidate must exist and have enough amount of currency");
 
         // refund remaining currency
         if (requestedManufacturers[_candidate] - _amount > 0) {
             _candidate.transfer(requestedManufacturers[_candidate] - _amount);
         }
-        // currency has been trasnfered so delete 
-        // to prevent approving manufacturer twice 
-        delete requestedManufacturers[_candidate];
-        _manufacturers.add(candidate);
+        _setupRole(MANUFACTURER_ROLE, _candidate);
     } 
     
     // Creates a random Pizza from string (name)
-    function mint(uint _modelID, string memory _name, uint _size) public {
-        require(_manufacturers.has(msg.sender), "Requires manufacturer role");
+    function mint(uint32 _modelID, string memory _name, uint8 _size) public {
+        require(hasRole(MANUFACTURER_ROLE, msg.sender),"Requires manufacturer role");
         _sneaker(msg.sender, _modelID, _name, _size);
     }
 
@@ -109,7 +115,7 @@ contract CryptoSneaker is IERC721, ERC165, Ownable {
     }
 
     // Transfers Sneaker and ownership to other address
-    function transferFrom(address _from, address _to, uint256 _sneakerId) public {
+    function transferFrom(address _from, address _to, uint256 _sneakerId) public override {
         require(_from != address(0) && _to != address(0), "Invalid address.");
         require(_exists(_sneakerId), "Sneaker does not exist.");
         require(_from != _to, "Cannot transfer to the same address.");
@@ -133,6 +139,7 @@ contract CryptoSneaker is IERC721, ERC165, Ownable {
     */
     function safeTransferFrom(address from, address to, uint256 sneakerId)
         public
+        override
     {
         // solium-disable-next-line arg-overflow
         this.safeTransferFrom(from, to, sneakerId, "");
@@ -150,7 +157,7 @@ contract CryptoSneaker is IERC721, ERC165, Ownable {
         address to,
         uint256 sneakerId,
         bytes memory _data
-    ) public {
+    ) public override {
         this.transferFrom(from, to, sneakerId);
         require(_checkOnERC721Received(from, to, sneakerId, _data), "Must implmement onERC721Received.");
     }
@@ -194,19 +201,19 @@ contract CryptoSneaker is IERC721, ERC165, Ownable {
     }
 
     // Returns count of Sneakers by address
-    function balanceOf(address _owner) public view returns (uint256 _balance) {
+    function balanceOf(address _owner) public view override returns (uint256 _balance) {
         return ownerPairsCount[_owner];
     }
 
     // Returns owner of the Sneaker found by id
-    function ownerOf(uint256 _sneakerId) public view returns (address _owner) {
+    function ownerOf(uint256 _sneakerId) public view override returns (address _owner) {
         address owner = pairToOwner[_sneakerId];
         require(owner != address(0), "Invalid Sneaker ID.");
         return owner;
     }
 
     // Approves other address to transfer ownership of Sneaker
-    function approve(address _to, uint256 _sneakerId) public {
+    function approve(address _to, uint256 _sneakerId) public override {
         require(msg.sender == pairToOwner[_sneakerId], "Must be the Sneaker owner.");
         sneakerApprovals[_sneakerId] = _to;
         emit Approval(msg.sender, _to, _sneakerId);
@@ -216,6 +223,7 @@ contract CryptoSneaker is IERC721, ERC165, Ownable {
     function getApproved(uint256 _sneakerId)
         public
         view
+        override 
         returns (address operator)
     {
         require(_exists(_sneakerId), "Sneaker does not exist.");
@@ -238,7 +246,7 @@ contract CryptoSneaker is IERC721, ERC165, Ownable {
      * Sets or unsets the approval of a given operator
      * An operator is allowed to transfer all tokens of the sender on their behalf
      */
-    function setApprovalForAll(address to, bool approved) public {
+    function setApprovalForAll(address to, bool approved) public override {
         require(to != msg.sender, "Cannot approve own address");
         operatorApprovals[msg.sender][to] = approved;
         emit ApprovalForAll(msg.sender, to, approved);
@@ -248,6 +256,7 @@ contract CryptoSneaker is IERC721, ERC165, Ownable {
     function isApprovedForAll(address owner, address operator)
         public
         view
+        override
         returns (bool)
     {
         return operatorApprovals[owner][operator];
@@ -283,7 +292,7 @@ contract CryptoSneaker is IERC721, ERC165, Ownable {
         bool result = true;
         for (uint256 i = 0; i < sneakers.length; i++) {
             if (
-                sneakers[i] == _modelID && 
+                sneakers[i].modelID == _modelID && 
                 sneakers[i].manufacturer == _manufacturer
             ) {
                 result = false;
