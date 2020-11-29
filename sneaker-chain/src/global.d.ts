@@ -1,0 +1,2 @@
+export const CRYPTO_SNEAKER_CONTRACT_ADDRESS =
+  "0xa36e2a7b0b1cdd13213d661fb755a5ca5e6e99d0";
