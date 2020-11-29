@@ -17,9 +17,12 @@ contract CryptoSneaker is CustomERC721, AccessControl {
     
     bytes32 public constant MANUFACTURER_ROLE = keccak256("MANUFACTURER_ROLE");
     bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
+    
+    event ManufacturerApproved(address manufacturer, uint256 amount);
+    event ManufacturerRequest(address manufacturer, uint256 amount);
 
    // Mappint from manufacturer candidate to the amount they offer for joining the manufacturer club
-    mapping(address => uint) public requestedManufacturers;
+    mapping(address => uint256) public requestedManufacturers;
 
     
 
@@ -60,10 +63,11 @@ contract CryptoSneaker is CustomERC721, AccessControl {
         require(!hasRole(MANUFACTURER_ROLE, msg.sender), "Sender is already the manufacturer");
         require(requestedManufacturers[msg.sender] == 0, "Already pending request");
         requestedManufacturers[msg.sender] = msg.value;
+        emit ManufacturerRequest(msg.sender, msg.value);
     }
     
     // Accept the manufacturer and 
-    function approveManufacturer(address payable _candidate, uint _amount) public {
+    function approveManufacturer(address payable _candidate, uint256 _amount) public {
         require(hasRole(ADMIN_ROLE, msg.sender), "Requires admin role");
         require(requestedManufacturers[_candidate] > 0 && requestedManufacturers[_candidate] >= _amount, "Candidate must exist and have enough amount of currency");
 
@@ -71,6 +75,8 @@ contract CryptoSneaker is CustomERC721, AccessControl {
         if (requestedManufacturers[_candidate] - _amount > 0) {
             _candidate.transfer(requestedManufacturers[_candidate] - _amount);
         }
+
+        emit ManufacturerApproved(_candidate, _amount);
         _setupRole(MANUFACTURER_ROLE, _candidate);
     } 
     
@@ -83,7 +89,7 @@ contract CryptoSneaker is CustomERC721, AccessControl {
 
 
     // Returns array of Sneakers found by owner
-    function getPairsByOwner(address _owner)
+    function getSneakersByOwner(address _owner)
         public
         view
         returns (uint256[] memory)
