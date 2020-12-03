@@ -12,6 +12,12 @@ npm install -g ganache-cli geth truffle
  * in separate terminal `ganache-cli -m abcdef`, abcdef is just a random string
  * in another terminal `truffle migrate`
  * in the same termianl as was the migration `geth attach http://localhost:8545`
+
+ ## Run tests
+
+ ```bash
+    truffle test
+ ```
  
 
  ### Commands inside geth session

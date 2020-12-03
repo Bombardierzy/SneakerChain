@@ -1,4 +1,7 @@
 import React, { ReactElement, useContext, useEffect, useState } from "react";
+import { makeStyles } from "@material-ui/core";
+import Gauge from "./Gauge";
+import { web3 } from "../../Contract"
 
 import { ContractContext } from "../../Contract";
 
@@ -7,6 +10,10 @@ export function Home(): ReactElement {
   const contract = useContext(ContractContext);
   const [account, setAccount] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [currency, setCurrency] = useState("ETH");
+  const [amount, setAmount] = useState(30);
+  const [min, setMin] = useState(0);
+  const [max, setMax] = useState(100);
 
   // const loadWallet = async () => {
   //   const {result: accounts} = await window.ethereum.send("eth_requestAccounts");
@@ -21,6 +28,7 @@ export function Home(): ReactElement {
           result: [account],
         } = await window.ethereum.send("eth_requestAccounts");
         setAccount(account);
+        setAmount(parseInt( await web3.eth.getBalance(account)))
       } catch (error) {
         setError("Error happened while fetching wallet!");
       }
@@ -29,14 +37,31 @@ export function Home(): ReactElement {
     fetchWallet();
   }, []);
 
+  const useStyles = makeStyles((theme) => ({
+    header: {
+      display: "flex",
+      justifyContent: "center",
+      marginTop: 10,
+      fontSize: 40
+    }
+  }));
+  const classes = useStyles();
+
+
   return (
     <div>
-      <div>HOME</div>
-      {account !== null ? <span>Your wallet address: {account}</span> : null}
-      {account === null && error !== null ? <span>{error}</span> : null}
-      {account === null && error == null ? (
-        <span>Loading wallet...</span>
-      ) : null}
+      <header className={classes.header}>
+        Wallet Balance
+      </header>
+      <div>
+        <Gauge
+        amount={amount}
+        angle={`rotate(${(amount * 180) / max}deg)`}
+        currency={currency}
+        min={min}
+        max={max}/>
+      </div>
+      
     </div>
   );
 }
