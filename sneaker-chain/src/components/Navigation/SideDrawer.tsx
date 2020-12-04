@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 
+import { ListItemIcon } from '@material-ui/core';
+import { MdHome, MdWidgets, MdCreate, MdPerson } from "react-icons/md";
 import Button from "@material-ui/core/Button";
 import Drawer from "@material-ui/core/Drawer";
 import { Link } from "react-router-dom";
@@ -41,12 +43,15 @@ export default function SideDrawer({ open, toggleOpen }: SideDrawerProps) {
       onKeyDown={toggleDrawer}
     >
       <List>
-        {["Home", "Inventory", "Manufacturer", "Admin"].map((text, index) => (
-          <Link to={`/${text.toLowerCase()}`}>
-            <ListItem button key={text}>
-              <ListItemText primary={text} />
-            </ListItem>
-          </Link>
+        {[{text: "Home", iconName: MdHome}, 
+        {text: "Inventory", iconName: MdWidgets}, 
+        {text: "Manufacturer", iconName: MdCreate}, 
+        {text: "Admin", iconName: MdPerson}]
+        .map((item, index) => (
+          <ListItem button key={item.text} component={Link} to={`/${item.text.toLowerCase()}`}>
+            <ListItemIcon><item.iconName/></ListItemIcon>
+            <ListItemText primary={item.text} style={{ textDecoration: 'none' }}/>
+          </ListItem>
         ))}
       </List>
     </div>
