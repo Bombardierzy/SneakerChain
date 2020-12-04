@@ -5,7 +5,7 @@ const useStyles = makeStyles((theme) => ({
   gauge: {
     display: "flex",
     justifyContent: "center",
-    marginTop: 90,
+    height: 500
   },
   piggy: {
     width: 150,
