@@ -12,8 +12,6 @@ interface IFormInput {
 }
 
 export function Admin(): ReactElement {
-  const [address, setAddress] = useState(0);
-
   const {register, errors, handleSubmit} = useForm();
 
   const useStyles = makeStyles((theme) => ({

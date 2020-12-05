@@ -12,6 +12,7 @@ import MenuIcon from "@material-ui/icons/Menu";
 import Toolbar from "@material-ui/core/Toolbar";
 import Typography from "@material-ui/core/Typography";
 import clsx from "clsx";
+import { useLocation } from "react-router-dom";
 
 const drawerWidth = 240;
 
@@ -48,13 +49,18 @@ interface SneakerAppBarProps {
   title: string;
 }
 
+function capitalize(name: string): string {
+  return name.charAt(0).toUpperCase() + name.slice(1);
+}
+
 export default function SneakerAppBar({
   toggleDrawer,
   title,
 }: SneakerAppBarProps): ReactElement {
   const classes = useStyles();
-  const theme = useTheme();
   const [open, setOpen] = useState(false);
+
+  const location = useLocation();
 
   return (
     <AppBar
@@ -74,7 +80,7 @@ export default function SneakerAppBar({
           <MenuIcon />
         </IconButton>
         <Typography variant="h6" noWrap>
-          {title}
+          {`${title} - ${capitalize(location.pathname.substr(1))}`}
         </Typography>
       </Toolbar>
     </AppBar>
