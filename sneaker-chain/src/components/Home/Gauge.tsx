@@ -64,7 +64,15 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const Gauge = ({ amount, angle, currency, min, max } : any) => {
+interface GaugeProps{
+  amount: number,
+  angle: string,
+  currency: string,
+  min: number,
+  max: number
+}
+
+const Gauge = ({ amount, angle, currency, min, max } : GaugeProps) => {
   const classes = useStyles();
 
   return (
