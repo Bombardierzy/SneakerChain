@@ -17,19 +17,13 @@ import {
 } from "@material-ui/core";
 import React, { ReactElement, useState } from "react";
 
+import { Sneaker } from "../../models/models";
+
 const useStyles = makeStyles({
   table: {
     minWidth: 400,
   },
 });
-
-interface Sneaker {
-  tokenId: string;
-  manufacturer: string;
-  modelId: string;
-  size: number;
-  name: string;
-}
 
 export function Inventory(): ReactElement {
   const classes = useStyles();
@@ -43,21 +37,21 @@ export function Inventory(): ReactElement {
 
   const sneakers: Sneaker[] = [
     {
-      tokenId: "1",
+      token: "1",
       manufacturer: "address 1",
       modelId: "model 1",
       size: 15,
       name: "sneaker 1",
     },
     {
-      tokenId: "2",
+      token: "2",
       manufacturer: "address 2",
       modelId: "model 2",
       size: 10,
       name: "sneaker 2",
     },
     {
-      tokenId: "3",
+      token: "3",
       manufacturer: "address 3",
       modelId: "model 3",
       size: 9,
@@ -80,7 +74,7 @@ export function Inventory(): ReactElement {
           </TableHead>
           <TableBody>
             {sneakers.map((row) => (
-              <TableRow key={row.tokenId}>
+              <TableRow key={row.token}>
                 <TableCell component="th" scope="row">
                   {row.name}
                 </TableCell>
@@ -109,7 +103,7 @@ export function Inventory(): ReactElement {
         aria-labelledby="form-dialog-title"
       >
         <DialogTitle id="form-dialog-title">
-          Transfer token {activeSneaker?.tokenId}
+          Transfer token {activeSneaker?.token}
         </DialogTitle>
 
         <DialogContent>

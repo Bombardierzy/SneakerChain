@@ -1,11 +1,16 @@
-import React, { ReactElement, useContext, useEffect, useState } from "react";
-import { makeStyles } from "@material-ui/core";
-import Gauge from "./Gauge";
-import { web3, ContractContext } from "../../Contract";
-import { Container, Grid, Button } from "@material-ui/core";
 import "mdbreact/dist/css/mdb.css";
 import "@fortawesome/fontawesome-free/css/all.min.css";
 import "bootstrap-css-only/css/bootstrap.min.css";
+
+import { Button, Container, Grid, TextField } from "@material-ui/core";
+import { ContractContext, web3 } from "../../Contract";
+import React, { ReactElement, useContext, useEffect, useState } from "react";
+
+import FakeSneaker from "./FakeSneaker";
+import Gauge from "./Gauge";
+import OriginalSneaker from "./OriginalSneaker";
+import { Sneaker } from "../../models/models";
+import { makeStyles } from "@material-ui/core";
 
 // This component should be responsible for loading wallets from MetaMask
 export function Home(): ReactElement {
@@ -17,11 +22,15 @@ export function Home(): ReactElement {
   const [min, setMin] = useState(0);
   const [max, setMax] = useState(100);
 
-  // const loadWallet = async () => {
-  //   const {result: accounts} = await window.ethereum.send("eth_requestAccounts");
-  //   console.log("Your wallet address", accounts[0]);
-  //   contract.methods.requestManufacturerRole().send({from: accounts[0], gas: 500000, value: 1});
-  // }
+  const [checkSneaker, setCheckSneaker] = useState<string | null>(null);
+  const [tokenValue, setTokenValue] = useState("");
+  const sneaker: Sneaker = {
+    token: "random token",
+    modelId: "random model id",
+    manufacturer: "random address",
+    size: 10,
+    name: "Random sneaker name",
+  };
 
   useEffect(() => {
     const fetchWallet = async () => {
@@ -66,19 +75,46 @@ export function Home(): ReactElement {
             </div>
           </Grid>
           <Grid item md={6}>
-            <form>
-              <p className="h4 text-center mb-4">Check sneaker</p>
-              <label htmlFor="tokenIdLabel" className="grey-text">
-                Token id
-              </label>
-              <input type="text" id="tokenId" className="form-control" />
-              <br />
-              <div className="text-center mt-4">
-                <Button type="submit" color="primary" variant="outlined">
-                  Check
-                </Button>
-              </div>
-            </form>
+            {checkSneaker ? (
+              checkSneaker === "random" ? (
+                <OriginalSneaker
+                  sneaker={sneaker}
+                  onNext={() => setCheckSneaker(null)}
+                />
+              ) : (
+                <FakeSneaker
+                  token={checkSneaker}
+                  onNext={() => setCheckSneaker(null)}
+                />
+              )
+            ) : (
+              <form>
+                <p className="h4 text-center mb-4">Check sneaker</p>
+                <label htmlFor="tokenIdLabel" className="grey-text">
+                  Token id
+                </label>
+                <input
+                  type="text"
+                  id="tokenId"
+                  className="form-control"
+                  onChange={(e) => setTokenValue(e.target.value)}
+                />
+                <br />
+                <div className="text-center mt-4">
+                  <Button
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setCheckSneaker(tokenValue);
+                    }}
+                    type="submit"
+                    color="primary"
+                    variant="outlined"
+                  >
+                    Check
+                  </Button>
+                </div>
+              </form>
+            )}
           </Grid>
         </Grid>
       </Container>
