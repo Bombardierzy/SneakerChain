@@ -5,7 +5,7 @@ const useStyles = makeStyles((theme) => ({
   gauge: {
     display: "flex",
     justifyContent: "center",
-    height: 500
+    height: 500,
   },
   piggy: {
     width: 150,
@@ -64,15 +64,15 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-interface GaugeProps{
-  amount: number,
-  angle: string,
-  currency: string,
-  min: number,
-  max: number
+interface GaugeProps {
+  amount: number;
+  angle: string;
+  currency: string;
+  min: number;
+  max: number;
 }
 
-const Gauge = ({ amount, angle, currency, min, max } : GaugeProps) => {
+const Gauge = ({ amount, angle, currency, min, max }: GaugeProps) => {
   const classes = useStyles();
 
   return (

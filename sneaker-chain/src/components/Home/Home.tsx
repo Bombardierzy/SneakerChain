@@ -1,11 +1,11 @@
 import React, { ReactElement, useContext, useEffect, useState } from "react";
 import { makeStyles } from "@material-ui/core";
 import Gauge from "./Gauge";
-import { web3,  ContractContext } from "../../Contract"
-import { Container, Grid, Button } from '@material-ui/core';
-import 'mdbreact/dist/css/mdb.css'
-import '@fortawesome/fontawesome-free/css/all.min.css';
-import 'bootstrap-css-only/css/bootstrap.min.css';
+import { web3, ContractContext } from "../../Contract";
+import { Container, Grid, Button } from "@material-ui/core";
+import "mdbreact/dist/css/mdb.css";
+import "@fortawesome/fontawesome-free/css/all.min.css";
+import "bootstrap-css-only/css/bootstrap.min.css";
 
 // This component should be responsible for loading wallets from MetaMask
 export function Home(): ReactElement {
@@ -30,7 +30,7 @@ export function Home(): ReactElement {
           result: [account],
         } = await window.ethereum.send("eth_requestAccounts");
         setAccount(account);
-        setAmount(parseInt( await web3.eth.getBalance(account)))
+        setAmount(parseInt(await web3.eth.getBalance(account)));
       } catch (error) {
         setError("Error happened while fetching wallet!");
       }
@@ -44,28 +44,26 @@ export function Home(): ReactElement {
       display: "flex",
       justifyContent: "center",
       marginTop: 10,
-      fontSize: 30
-    }
+      fontSize: 30,
+    },
   }));
   const classes = useStyles();
-
 
   return (
     <div>
       <Container>
         <Grid container spacing={2}>
           <Grid item md={6}>
-          <div className={classes.header}>
-            Wallet Balance
-          </div>
-          <div>
-            <Gauge
-            amount={amount}
-            angle={`rotate(${(amount * 180) / max}deg)`}
-            currency={currency}
-            min={min}
-            max={max}/>
-          </div>
+            <div className={classes.header}>Wallet Balance</div>
+            <div>
+              <Gauge
+                amount={amount}
+                angle={`rotate(${(amount * 180) / max}deg)`}
+                currency={currency}
+                min={min}
+                max={max}
+              />
+            </div>
           </Grid>
           <Grid item md={6}>
             <form>
