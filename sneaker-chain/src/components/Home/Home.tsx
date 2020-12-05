@@ -1,14 +1,11 @@
 import React, { ReactElement, useContext, useEffect, useState } from "react";
 import { makeStyles } from "@material-ui/core";
 import Gauge from "./Gauge";
-import { web3 } from "../../Contract"
-import { MDBContainer, MDBRow, MDBCol, MDBCard, MDBCardBody, MDBInput, MDBBtn, MDBIcon } from 'mdbreact';
+import { web3,  ContractContext } from "../../Contract"
+import { Container, Grid, Button } from '@material-ui/core';
 import 'mdbreact/dist/css/mdb.css'
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import 'bootstrap-css-only/css/bootstrap.min.css';
-
-import { ContractContext } from "../../Contract";
-import { Console } from "console";
 
 // This component should be responsible for loading wallets from MetaMask
 export function Home(): ReactElement {
@@ -55,9 +52,9 @@ export function Home(): ReactElement {
 
   return (
     <div>
-      <MDBContainer>
-        <MDBRow>
-          <MDBCol md="6">
+      <Container>
+        <Grid container spacing={2}>
+          <Grid item md={6}>
           <div className={classes.header}>
             Wallet Balance
           </div>
@@ -69,44 +66,24 @@ export function Home(): ReactElement {
             min={min}
             max={max}/>
           </div>
-          </MDBCol>
-          <MDBCol md="6">
+          </Grid>
+          <Grid item md={6}>
             <form>
               <p className="h4 text-center mb-4">Check sneaker</p>
-              <label htmlFor="manufacturerNameLabel" className="grey-text">
-                Manufacturer name
+              <label htmlFor="tokenIdLabel" className="grey-text">
+                Token id
               </label>
-              <input type="text" id="manufacturerName" className="form-control" />
+              <input type="text" id="tokenId" className="form-control" />
               <br />
-              <label htmlFor="modelNameLabel" className="grey-text">
-                Model name
-              </label>
-              <input type="text" id="modelName" className="form-control" />
-              <br />
-              <label htmlFor="modelIdLabel" className="grey-text">
-                Model id
-              </label>
-              <input type="text" id="modelId" className="form-control" />
-              <br />
-              <label htmlFor="sneakerSizeLabel" className="grey-text">
-                Sneaker size
-              </label>
-              <input type="number" id="sneakerSize" className="form-control" />
-              <br />
-              <label htmlFor="sellerIdLabel" className="grey-text">
-                Seller id
-              </label>
-              <input type="text" id="sellerId" className="form-control" />
               <div className="text-center mt-4">
-                <MDBBtn color="unique" type="submit" style={{color: "white"}}>
+                <Button type="submit" color="primary" variant="outlined">
                   Check
-                </MDBBtn>
+                </Button>
               </div>
             </form>
-          </MDBCol>
-        </MDBRow>
-        
-      </MDBContainer>
+          </Grid>
+        </Grid>
+      </Container>
     </div>
   );
 }

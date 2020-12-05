@@ -64,7 +64,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const Gauge = ({ amount, angle, currency, min, max }) => {
+const Gauge = ({ amount, angle, currency, min, max } : any) => {
   const classes = useStyles();
 
   return (

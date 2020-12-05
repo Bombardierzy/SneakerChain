@@ -1,8 +1,9 @@
-import React, { useState } from "react";
-
+import React from "react";
 import { ListItemIcon } from '@material-ui/core';
-import { MdHome, MdWidgets, MdCreate, MdPerson } from "react-icons/md";
-import Button from "@material-ui/core/Button";
+import HomeIcon from '@material-ui/icons/Home';
+import WidgetsIcon from '@material-ui/icons/Widgets';
+import CreateIcon from '@material-ui/icons/Create';
+import PersonIcon from '@material-ui/icons/Person';
 import Drawer from "@material-ui/core/Drawer";
 import { Link } from "react-router-dom";
 import List from "@material-ui/core/List";
@@ -35,7 +36,12 @@ export default function SideDrawer({ open, toggleOpen }: SideDrawerProps) {
     toggleOpen();
   };
 
-  const list = () => (
+  const list = [{text: "Home", iconName: HomeIcon}, 
+  {text: "Inventory", iconName: WidgetsIcon}, 
+  {text: "Manufacturer", iconName: CreateIcon}, 
+  {text: "Admin", iconName: PersonIcon}];
+
+  const drawerContent = () => (
     <div
       className={classes["list"]}
       role="presentation"
@@ -43,11 +49,7 @@ export default function SideDrawer({ open, toggleOpen }: SideDrawerProps) {
       onKeyDown={toggleDrawer}
     >
       <List>
-        {[{text: "Home", iconName: MdHome}, 
-        {text: "Inventory", iconName: MdWidgets}, 
-        {text: "Manufacturer", iconName: MdCreate}, 
-        {text: "Admin", iconName: MdPerson}]
-        .map((item, index) => (
+        {list.map((item, index) => (
           <ListItem button key={item.text} component={Link} to={`/${item.text.toLowerCase()}`}>
             <ListItemIcon><item.iconName/></ListItemIcon>
             <ListItemText primary={item.text} style={{ textDecoration: 'none' }}/>
@@ -60,7 +62,7 @@ export default function SideDrawer({ open, toggleOpen }: SideDrawerProps) {
   return (
     <div>
       <Drawer anchor={"left"} open={open} onClose={toggleDrawer}>
-        {list()}
+        {drawerContent()}
       </Drawer>
     </div>
   );
