@@ -34,6 +34,7 @@ export function Home(): ReactElement {
 
   useEffect(() => {
     const fetchWallet = async () => {
+      console.log("account");
       try {
         const {
           result: [account],
