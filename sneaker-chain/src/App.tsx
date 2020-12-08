@@ -7,6 +7,7 @@ import { Theme, createStyles, makeStyles, useTheme } from "@material-ui/core";
 
 import { Admin } from "./components/Admin/Admin";
 import { Home } from "./components/Home/Home";
+import { Login } from "./components/Login/Login";
 import { Inventory } from "./components/Inventory/Inventory";
 import { Manufacturer } from "./components/Manufacturer/Manufacturer";
 import SideDrawer from "./components/Navigation/SideDrawer";
@@ -58,8 +59,11 @@ function App() {
             <Route path="/home">
               <Home />
             </Route>
+            <Route path="/login">
+              <Login />
+            </Route>
             <Route exact path="/">
-              <Redirect to="/home" />
+              <Redirect to="/login" />
             </Route>
           </Switch>
         </main>

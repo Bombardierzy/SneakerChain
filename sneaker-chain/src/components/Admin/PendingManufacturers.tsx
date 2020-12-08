@@ -1,17 +1,26 @@
 import { ReactElement, useState } from "react";
 import { makeStyles } from "@material-ui/core";
-import { Table, TableBody, TableContainer, TableHead, TableRow, TableCell, Button, Typography } from '@material-ui/core';
-import {Manufacturer}  from '../../models/models'
+import {
+  Table,
+  TableBody,
+  TableContainer,
+  TableHead,
+  TableRow,
+  TableCell,
+  Button,
+  Typography,
+} from "@material-ui/core";
+import { Manufacturer } from "../../models/models";
 
 export function PendingManufacturers(): ReactElement {
-  const [manufacturers, setManufacturers ]= useState([
+  const [manufacturers, setManufacturers] = useState([
     {
       name: "Nike",
       street: "Aleja jana długosza 5",
       city: "Kraków",
       postalCode: "33-333",
       state: "malopolska",
-      country: "Polska"
+      country: "Polska",
     },
     {
       name: "Adidas",
@@ -19,54 +28,58 @@ export function PendingManufacturers(): ReactElement {
       city: "Wytrzyszczka",
       postalCode: "23-231",
       state: "malopolska",
-      country: "Polska"
-    }
+      country: "Polska",
+    },
   ]);
 
   const useStyles = makeStyles((theme) => ({
     table: {
-        width: "100%",
+      width: "100%",
     },
     header: {
-        display: "flex",
-        justifyContent: "center",
-        marginTop: 10,
-        marginBottom: 20,
-        fontSize: 25
+      display: "flex",
+      justifyContent: "center",
+      marginTop: 10,
+      marginBottom: 20,
+      fontSize: 25,
     },
   }));
 
   const denyRequest = (row: Manufacturer) => {
     console.log(row);
-    setManufacturers(manufacturers.filter( manufacturer => manufacturer !== row))
-  }
+    setManufacturers(
+      manufacturers.filter((manufacturer) => manufacturer !== row)
+    );
+  };
 
   const acceptRequest = (row: Manufacturer) => {
     console.log(row);
-    setManufacturers(manufacturers.filter( manufacturer => manufacturer !== row))
-  }
+    setManufacturers(
+      manufacturers.filter((manufacturer) => manufacturer !== row)
+    );
+  };
 
   const classes = useStyles();
 
   return (
     <div>
-    <Typography variant="h1" className={classes.header}>
+      <Typography variant="h1" className={classes.header}>
         Pending Manufacturers
-    </Typography>
-          <TableContainer className={classes.table} >
-          <Table className={classes.table} aria-label="simple table">
-            <TableHead>
-              <TableRow>
-                <TableCell align="center">Name</TableCell>
-                <TableCell align="center">Street</TableCell>
-                <TableCell align="center">City</TableCell>
-                <TableCell align="center">Postal Code</TableCell>
-                <TableCell align="center">State</TableCell>
-                <TableCell align="center">Country</TableCell>
-                <TableCell align="center"></TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
+      </Typography>
+      <TableContainer className={classes.table}>
+        <Table className={classes.table} aria-label="simple table">
+          <TableHead>
+            <TableRow>
+              <TableCell align="center">Name</TableCell>
+              <TableCell align="center">Street</TableCell>
+              <TableCell align="center">City</TableCell>
+              <TableCell align="center">Postal Code</TableCell>
+              <TableCell align="center">State</TableCell>
+              <TableCell align="center">Country</TableCell>
+              <TableCell align="center"></TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
             {manufacturers.map((row) => (
               <TableRow key={row.name}>
                 <TableCell align="center">{row.name}</TableCell>
@@ -80,7 +93,7 @@ export function PendingManufacturers(): ReactElement {
                     className="mr-2"
                     variant="contained"
                     color="primary"
-                    onClick={ () => acceptRequest(row)}
+                    onClick={() => acceptRequest(row)}
                   >
                     Accept
                   </Button>
@@ -88,16 +101,16 @@ export function PendingManufacturers(): ReactElement {
                     className="ml-2"
                     variant="contained"
                     color="secondary"
-                    onClick={ () => denyRequest(row)}
+                    onClick={() => denyRequest(row)}
                   >
                     Deny
                   </Button>
                 </TableCell>
               </TableRow>
             ))}
-            </TableBody>
-            </Table>
-          </TableContainer>
+          </TableBody>
+        </Table>
+      </TableContainer>
     </div>
   );
 }

@@ -1,23 +1,22 @@
 import { ReactElement } from "react";
-import { Container, Grid } from '@material-ui/core';
-import { NewManufacturer } from './NewManufacturer'
-import { AddToken } from './AddToken'
+import { Container, Grid } from "@material-ui/core";
+import { NewManufacturer } from "./NewManufacturer";
+import { AddToken } from "./AddToken";
 
 export function Manufacturer(): ReactElement {
-
   const Account = {
-    role: "RandomUser"
-  }
+    role: "RandomUser",
+  };
 
   return (
     <div>
-     <Container>
+      <Container>
         <Grid>
-          {
-            Account.role === "Manufacturer"
-            ? <AddToken></AddToken>
-            : <NewManufacturer></NewManufacturer>
-          }
+          {Account.role === "Manufacturer" ? (
+            <AddToken></AddToken>
+          ) : (
+            <NewManufacturer></NewManufacturer>
+          )}
         </Grid>
       </Container>
     </div>
