@@ -1,3 +1,4 @@
+import { CryptoSneakerContract } from "./contracts";
 import React from "react";
 import Web3 from "web3";
 import { cryptoSneakerAbi } from "./abis/abis";
@@ -9,11 +10,15 @@ export const web3 = new Web3(
   new Web3.providers.HttpProvider("http://localhost:8545")
 );
 
-export function loadCryptoSneakerContract() {
-  return new web3.eth.Contract(
+export function loadCryptoSneakerContract(
+  address: string
+): CryptoSneakerContract {
+  return (new web3.eth.Contract(
     cryptoSneakerAbi,
-    CRYPTO_SNEAKER_CONTRACT_ADDRESS
-  );
+    address
+  ) as any) as CryptoSneakerContract;
 }
 
-export const ContractContext = React.createContext(loadCryptoSneakerContract());
+export const ContractContext = React.createContext(
+  loadCryptoSneakerContract(CRYPTO_SNEAKER_CONTRACT_ADDRESS)
+);
