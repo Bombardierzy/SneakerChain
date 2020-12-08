@@ -2,28 +2,56 @@ import "mdbreact/dist/css/mdb.css";
 import "@fortawesome/fontawesome-free/css/all.min.css";
 import "bootstrap-css-only/css/bootstrap.min.css";
 
-import { Button, Container, Grid, TextField } from "@material-ui/core";
+import {
+  Button,
+  Container,
+  Grid,
+  Typography,
+  FormLabel,
+  TextField,
+} from "@material-ui/core";
 import { ContractContext, web3 } from "../../Contract";
 import React, { ReactElement, useContext, useEffect, useState } from "react";
-
 import FakeSneaker from "./FakeSneaker";
-import Gauge from "./Gauge";
 import OriginalSneaker from "./OriginalSneaker";
 import { Sneaker } from "../../models/models";
 import { makeStyles } from "@material-ui/core";
+import { WalletBalancePig } from "./WalletBalancePig";
+import { useForm } from "react-hook-form";
+
+const useStyles = makeStyles({
+  header: {
+    display: "flex",
+    justifyContent: "center",
+    marginTop: 10,
+    fontSize: 30,
+  },
+  content: {
+    textAlign: "center",
+    display: "block",
+  },
+  piggy: {
+    width: 150,
+    height: 150,
+  },
+  button: {
+    marginTop: 20,
+  },
+  textField: {
+    width: "100%",
+  },
+});
 
 // This component should be responsible for loading wallets from MetaMask
 export function Home(): ReactElement {
   const contract = useContext(ContractContext);
   const [account, setAccount] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [currency, setCurrency] = useState("ETH");
   const [amount, setAmount] = useState(30);
-  const [min, setMin] = useState(0);
-  const [max, setMax] = useState(100);
+  const { register, errors, handleSubmit } = useForm();
 
   const [checkSneaker, setCheckSneaker] = useState<string | null>(null);
-  const [tokenValue, setTokenValue] = useState("");
+  const [token, setToken] = useState("");
   const sneaker: Sneaker = {
     token: "random token",
     modelId: "random model id",
@@ -38,6 +66,7 @@ export function Home(): ReactElement {
         const {
           result: [account],
         } = await window.ethereum.send("eth_requestAccounts");
+        console.log(account);
         setAccount(account);
         setAmount(parseInt(await web3.eth.getBalance(account)));
       } catch (error) {
@@ -48,31 +77,19 @@ export function Home(): ReactElement {
     fetchWallet();
   }, []);
 
-  const useStyles = makeStyles((theme) => ({
-    header: {
-      display: "flex",
-      justifyContent: "center",
-      marginTop: 10,
-      fontSize: 30,
-    },
-  }));
+  const onSubmit = (data: { token: string }) => {
+    console.log(data);
+    setCheckSneaker(data.token);
+  };
+
   const classes = useStyles();
 
   return (
     <div>
       <Container>
         <Grid container spacing={2}>
-          <Grid item md={6}>
-            <div className={classes.header}>Wallet Balance</div>
-            <div>
-              <Gauge
-                amount={amount}
-                angle={`rotate(${(amount * 180) / max}deg)`}
-                currency={currency}
-                min={min}
-                max={max}
-              />
-            </div>
+          <Grid item md={6} className={classes.content}>
+            <WalletBalancePig amount={amount} />
           </Grid>
           <Grid item md={6}>
             {checkSneaker ? (
@@ -88,30 +105,30 @@ export function Home(): ReactElement {
                 />
               )
             ) : (
-              <form>
-                <p className="h4 text-center mb-4">Check sneaker</p>
-                <label htmlFor="tokenIdLabel" className="grey-text">
-                  Token id
-                </label>
-                <input
-                  type="text"
-                  id="tokenId"
-                  className="form-control"
-                  onChange={(e) => setTokenValue(e.target.value)}
-                />
-                <br />
-                <div className="text-center mt-4">
-                  <Button
-                    onClick={(e) => {
-                      e.preventDefault();
-                      setCheckSneaker(tokenValue);
-                    }}
-                    type="submit"
-                    color="primary"
-                    variant="outlined"
-                  >
-                    Check
-                  </Button>
+              <form onSubmit={handleSubmit(onSubmit)}>
+                <div>
+                  <Typography variant="h1" className={classes.header}>
+                    Check sneaker
+                  </Typography>
+                  <TextField
+                    label={!errors.token ? "Token" : "Token is required"}
+                    type="text"
+                    name="token"
+                    className={classes.textField}
+                    onChange={(e) => setToken(e.target.value)}
+                    error={errors.token}
+                    inputRef={register({ required: true })}
+                  />
+                  <div className={classes.content}>
+                    <Button
+                      className={classes.button}
+                      type="submit"
+                      color="primary"
+                      variant="outlined"
+                    >
+                      Check
+                    </Button>
+                  </div>
                 </div>
               </form>
             )}
