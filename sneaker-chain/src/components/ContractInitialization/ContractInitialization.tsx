@@ -1,14 +1,16 @@
 import {
-  makeStyles,
-  Typography,
-  TextField,
+  Button,
   Container,
   FormLabel,
-  Button,
+  TextField,
+  Typography,
+  makeStyles,
 } from "@material-ui/core";
 import { ReactElement, useState } from "react";
-import Typing from "react-typing-animation";
+
 import FadeIn from "react-fade-in";
+import Typing from "react-typing-animation";
+import { useAppContext } from "../../contexts/appContext";
 import { useForm } from "react-hook-form";
 import { useHistory } from "react-router-dom";
 
@@ -36,14 +38,18 @@ const useStyles = makeStyles({
 });
 
 export function ContractInitialization(): ReactElement {
+  const [{}, dispatch] = useAppContext();
   const [showTextField, setShowTextField] = useState(false);
-  const { register, errors, handleSubmit } = useForm();
+  const { register, errors, handleSubmit, setError } = useForm();
   const classes = useStyles();
   const history = useHistory();
 
-  const onSubmit = (data: { contract: string }) => {
-    if (data.contract === "essa") {
-      history.push("/Home");
+  const onSubmit = ({ contract }: { contract: string }) => {
+    if (contract === "essa") {
+      dispatch({ type: "SET_CONTRACT_ADDRESS", contractAddress: contract });
+      history.push("/home");
+    } else {
+      setError("contract", { message: "Contract has not been found" });
     }
   };
 
@@ -67,10 +73,9 @@ export function ContractInitialization(): ReactElement {
         <FadeIn delay={500} className={classes.fadeIn}>
           <form onSubmit={handleSubmit(onSubmit)}>
             <TextField
-              label={
-                !errors.contract ? "Contract" : "Contract address is required"
-              }
-              error={errors.contract}
+              label="Contract"
+              error={errors?.contract}
+              helperText={errors?.contract?.message || ""}
               name="contract"
               inputRef={register({ required: true })}
               type="text"

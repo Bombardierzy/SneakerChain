@@ -1,12 +1,18 @@
 import "./App.css";
 
-import { BrowserRouter, Redirect, Route, Switch } from "react-router-dom";
-import React, { useState } from "react";
+import {
+  BrowserRouter,
+  Redirect,
+  Route,
+  Switch,
+  useHistory,
+} from "react-router-dom";
+import React, { useEffect, useState } from "react";
 import { Theme, createStyles, makeStyles, useTheme } from "@material-ui/core";
 
 import { Admin } from "./components/Admin/Admin";
-import { Home } from "./components/Home/Home";
 import { ContractInitialization } from "./components/ContractInitialization/ContractInitialization";
+import { Home } from "./components/Home/Home";
 import { Inventory } from "./components/Inventory/Inventory";
 import { Manufacturer } from "./components/Manufacturer/Manufacturer";
 import SideDrawer from "./components/Navigation/SideDrawer";
@@ -30,18 +36,27 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 function App() {
-  // based on this contract variable we should be redirected to contract initialization page
-  const [{ contract }] = useAppContext();
+  const [{ contractAddress }] = useAppContext();
   const [openDrawer, setOpenDrawer] = useState(false);
   const theme = useTheme();
   const classes = useStyles(theme);
+  const history = useHistory();
+
+  useEffect(() => {
+    console.log("should push", contractAddress, history);
+    if (contractAddress === "" && history) {
+      history.push("/initialization");
+    }
+  }, [history, contractAddress]);
 
   return (
-    <BrowserRouter>
-      <SneakerAppBar
-        title={TITLE}
-        toggleDrawer={() => setOpenDrawer(!openDrawer)}
-      />
+    <>
+      {contractAddress !== "" && (
+        <SneakerAppBar
+          title={TITLE}
+          toggleDrawer={() => setOpenDrawer(!openDrawer)}
+        />
+      )}
       <SideDrawer
         open={openDrawer}
         toggleOpen={() => setOpenDrawer(!openDrawer)}
@@ -69,7 +84,7 @@ function App() {
           </Route>
         </Switch>
       </main>
-    </BrowserRouter>
+    </>
   );
 }
 
