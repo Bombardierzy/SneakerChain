@@ -16,8 +16,31 @@ import FakeSneaker from "./FakeSneaker";
 import OriginalSneaker from "./OriginalSneaker";
 import { Sneaker } from "../../models/models";
 import { makeStyles } from "@material-ui/core";
-import { WalletBalance } from "./WalletBalance";
+import { WalletBalancePig } from "./WalletBalancePig";
 import { useForm } from "react-hook-form";
+
+const useStyles = makeStyles({
+  header: {
+    display: "flex",
+    justifyContent: "center",
+    marginTop: 10,
+    fontSize: 30,
+  },
+  content: {
+    textAlign: "center",
+    display: "block",
+  },
+  piggy: {
+    width: 150,
+    height: 150,
+  },
+  button: {
+    marginTop: 20,
+  },
+  textField: {
+    width: "100%",
+  },
+});
 
 // This component should be responsible for loading wallets from MetaMask
 export function Home(): ReactElement {
@@ -39,7 +62,6 @@ export function Home(): ReactElement {
 
   useEffect(() => {
     const fetchWallet = async () => {
-      console.log("account");
       try {
         const {
           result: [account],
@@ -60,28 +82,6 @@ export function Home(): ReactElement {
     setCheckSneaker(data.token);
   };
 
-  const useStyles = makeStyles((theme) => ({
-    header: {
-      display: "flex",
-      justifyContent: "center",
-      marginTop: 10,
-      fontSize: 30,
-    },
-    content: {
-      textAlign: "center",
-      display: "block",
-    },
-    piggy: {
-      width: 150,
-      height: 150,
-    },
-    button: {
-      marginTop: 20,
-    },
-    textField: {
-      width: "100%",
-    },
-  }));
   const classes = useStyles();
 
   return (
@@ -89,7 +89,7 @@ export function Home(): ReactElement {
       <Container>
         <Grid container spacing={2}>
           <Grid item md={6} className={classes.content}>
-            <WalletBalance amount={amount} />
+            <WalletBalancePig amount={amount} />
           </Grid>
           <Grid item md={6}>
             {checkSneaker ? (
@@ -110,22 +110,8 @@ export function Home(): ReactElement {
                   <Typography variant="h1" className={classes.header}>
                     Check sneaker
                   </Typography>
-                  <FormLabel
-                    hidden={errors.token}
-                    htmlFor="tokenLabel"
-                    className="mt-3 ml-1"
-                  >
-                    Token id
-                  </FormLabel>
-                  <FormLabel
-                    hidden={!errors.token}
-                    htmlFor="tokenLabel"
-                    className="mt-3 ml-1"
-                    error={true}
-                  >
-                    Token is required
-                  </FormLabel>
                   <TextField
+                    label={!errors.token ? "Token" : "Token is required"}
                     type="text"
                     name="token"
                     className={classes.textField}

@@ -20,7 +20,7 @@ const useStyles = makeStyles({
     transform: "translate(-50%, -50%)",
   },
   fadeIn: {
-    width: "50%",
+    width: 500,
     marginTop: 40,
     position: "absolute",
     left: "50%",
@@ -35,7 +35,7 @@ const useStyles = makeStyles({
   },
 });
 
-export function Login(): ReactElement {
+export function ContractInitialization(): ReactElement {
   const [showTextField, setShowTextField] = useState(false);
   const { register, errors, handleSubmit } = useForm();
   const classes = useStyles();
@@ -58,30 +58,18 @@ export function Login(): ReactElement {
           Welcome! Your data will be stolen!
         </Typography>
         <Typing.Delay ms={1000} />
-        <Typing.Backspace count={7} />
+        <Typing.Backspace count={15} />
         <Typography variant="h1" className={classes.header}>
-          &nbsp;secure!
+          &nbsp;is secure!
         </Typography>
       </Typing>
       {showTextField ? (
         <FadeIn delay={500} className={classes.fadeIn}>
           <form onSubmit={handleSubmit(onSubmit)}>
-            <FormLabel
-              hidden={errors.contract}
-              htmlFor="nameLabel"
-              className="ml-2"
-            >
-              Contract
-            </FormLabel>
-            <FormLabel
-              hidden={!errors.contract}
-              htmlFor="nameLabel"
-              error={true}
-            >
-              Contract is required
-            </FormLabel>
-            <br />
             <TextField
+              label={
+                !errors.contract ? "Contract" : "Contract address is required"
+              }
               error={errors.contract}
               name="contract"
               inputRef={register({ required: true })}
@@ -90,7 +78,7 @@ export function Login(): ReactElement {
             ></TextField>
             <div className="text-center mt-4">
               <Button type="submit" color="primary" variant="contained">
-                Send contract
+                Load contract
               </Button>
             </div>
           </form>

@@ -6,7 +6,7 @@ import { Theme, createStyles, makeStyles, useTheme } from "@material-ui/core";
 
 import { Admin } from "./components/Admin/Admin";
 import { Home } from "./components/Home/Home";
-import { Login } from "./components/Login/Login";
+import { ContractInitialization } from "./components/ContractInitialization/ContractInitialization";
 import { Inventory } from "./components/Inventory/Inventory";
 import { Manufacturer } from "./components/Manufacturer/Manufacturer";
 import SideDrawer from "./components/Navigation/SideDrawer";
@@ -31,11 +31,10 @@ const useStyles = makeStyles((theme: Theme) =>
 
 function App() {
   // based on this contract variable we should be redirected to contract initialization page
-  const [{contract}] = useAppContext();
+  const [{ contract }] = useAppContext();
   const [openDrawer, setOpenDrawer] = useState(false);
   const theme = useTheme();
   const classes = useStyles(theme);
-  
 
   return (
     <BrowserRouter>
@@ -62,8 +61,11 @@ function App() {
           <Route path="/home">
             <Home />
           </Route>
+          <Route path="/initialization">
+            <ContractInitialization />
+          </Route>
           <Route exact path="/">
-            <Redirect to="/home" />
+            <Redirect to="/initialization" />
           </Route>
         </Switch>
       </main>

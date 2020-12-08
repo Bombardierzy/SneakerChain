@@ -5,29 +5,34 @@ import {
   Grid,
   Button,
   TextField,
-  FormLabel,
   Typography,
 } from "@material-ui/core";
-import { useForm } from "react-hook-form";
+import { FieldError, useForm } from "react-hook-form";
 import { Manufacturer } from "../../models/models";
+
+const useStyles = makeStyles((theme) => ({
+  header: {
+    display: "flex",
+    justifyContent: "center",
+    marginTop: 10,
+    marginBottom: 20,
+    fontSize: 25,
+  },
+
+  formControl: {
+    width: "100%",
+    marginTop: 10,
+  },
+}));
+
+const checkPostalCodeFormat = (error: FieldError): string => {
+  if (!error) return "PostalCode";
+  if (error.type === "pattern") return "Invalid postal code format";
+  return "Postal Code is required";
+};
 
 export function NewManufacturer(): ReactElement {
   const { register, errors, handleSubmit } = useForm();
-
-  const useStyles = makeStyles((theme) => ({
-    header: {
-      display: "flex",
-      justifyContent: "center",
-      marginTop: 10,
-      marginBottom: 20,
-      fontSize: 25,
-    },
-
-    formControl: {
-      width: "100%",
-      marginTop: 10,
-    },
-  }));
 
   const onSubmit = (data: Manufacturer) => console.log(data);
   const classes = useStyles();
@@ -41,90 +46,33 @@ export function NewManufacturer(): ReactElement {
             and send request.
           </Typography>
           <form onSubmit={handleSubmit(onSubmit)}>
-            <FormLabel
-              hidden={errors.name}
-              htmlFor="nameLabel"
-              className="ml-2"
-            >
-              Name
-            </FormLabel>
-            <FormLabel hidden={!errors.name} htmlFor="nameLabel" error={true}>
-              Name is required
-            </FormLabel>
             <TextField
+              label={!errors.name ? "Name" : "Name is required"}
               error={errors.name}
               name="name"
               inputRef={register({ required: true })}
               type="text"
-              className="form-control mb-2"
+              className={classes.formControl}
             />
-
-            <FormLabel
-              hidden={errors.street}
-              htmlFor="streetLabel"
-              className="ml-2"
-            >
-              Street
-            </FormLabel>
-            <FormLabel
-              hidden={!errors.street}
-              htmlFor="streetLabel"
-              error={true}
-            >
-              Street is required
-            </FormLabel>
             <TextField
+              label={!errors.street ? "Street" : "Street is required"}
               error={errors.street}
               name="street"
               inputRef={register({ required: true })}
               type="text"
-              className="form-control mb-2"
+              className={classes.formControl}
             />
-
-            <FormLabel
-              hidden={errors.city}
-              htmlFor="cityLabel"
-              className="ml-2"
-            >
-              City
-            </FormLabel>
-            <FormLabel hidden={!errors.city} htmlFor="streetLabel" error={true}>
-              City is required
-            </FormLabel>
             <TextField
+              label={!errors.city ? "City" : "City is required"}
               error={errors.city}
               name="city"
               inputRef={register({ required: true })}
               type="text"
-              className="form-control mb-2"
+              className={classes.formControl}
             />
 
-            <FormLabel
-              hidden={errors.postalCode}
-              htmlFor="postalCodeLabel"
-              className="ml-2"
-            >
-              Postal Code
-            </FormLabel>
-            <FormLabel
-              hidden={
-                !(errors.postalCode && errors.postalCode.type === "pattern")
-              }
-              htmlFor="streetLabel"
-              error={true}
-            >
-              Invalid postal code format
-            </FormLabel>
-            <FormLabel
-              hidden={
-                !(errors.postalCode && errors.postalCode.type === "required")
-              }
-              htmlFor="postalCodeLabel"
-              error={true}
-            >
-              Postal Code is required
-            </FormLabel>
             <TextField
+              label={checkPostalCodeFormat(errors.postalCode)}
               error={errors.postalCode}
               name="postalCode"
               inputRef={register({
@@ -132,47 +80,23 @@ export function NewManufacturer(): ReactElement {
                 pattern: /^[0-9]{2}-[0-9]{3}?$/i,
               })}
               type="text"
-              className="form-control mb-2"
+              className={classes.formControl}
             />
-
-            <FormLabel
-              hidden={errors.state}
-              htmlFor="stateLabel"
-              className="ml-2"
-            >
-              State
-            </FormLabel>
-            <FormLabel hidden={!errors.state} htmlFor="stateLabel" error={true}>
-              State is required
-            </FormLabel>
             <TextField
+              label={!errors.state ? "State" : "State is required"}
               error={errors.state}
               name="state"
               inputRef={register({ required: true })}
               type="text"
-              className="form-control mb-2"
+              className={classes.formControl}
             />
-
-            <FormLabel
-              hidden={errors.country}
-              htmlFor="countryLabel"
-              className="ml-2"
-            >
-              Country
-            </FormLabel>
-            <FormLabel
-              hidden={!errors.country}
-              htmlFor="countryLabel"
-              error={true}
-            >
-              Country is required
-            </FormLabel>
             <TextField
+              label={!errors.country ? "Country" : "Country is required"}
               error={errors.country}
               name="country"
               inputRef={register({ required: true })}
               type="text"
-              className="form-control mb-2"
+              className={classes.formControl}
             />
 
             <div className="text-center mt-4">
