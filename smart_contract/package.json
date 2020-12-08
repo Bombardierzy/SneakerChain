@@ -7,7 +7,7 @@
     "test": "test"
   },
   "scripts": {
-    "generate-types": "typechain --target=node_modules/@typechain/truffle-v4 'build/contracts/CryptoSneaker.json' --outDir ../sneaker-chain/src/contracts",
+    "generate-types": "typechain --target=node_modules/@typechain/truffle-v4 'build/contracts/CryptoSneaker.json' --outDir ../sneaker-chain/src/contracts && cp build/contracts/CryptoSneaker.json ../sneaker-chain/src/abis/CryptoSneaker.json",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
