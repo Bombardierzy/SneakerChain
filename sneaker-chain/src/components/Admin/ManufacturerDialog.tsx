@@ -26,7 +26,8 @@ export function ManufacturerDialog({
       </DialogTitle>
       <DialogContent>
         <DialogContentText id="alert-dialog-description">
-          Remember! Every single operation that takes part in Ethereum, be it a transaction or smart contract execution requires some amount of gas.
+          Remember! Every single operation that takes part in Ethereum, be it a
+          transaction or smart contract execution requires some amount of gas.
         </DialogContentText>
       </DialogContent>
       <DialogActions>

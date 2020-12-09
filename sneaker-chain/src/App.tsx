@@ -1,11 +1,6 @@
 import "./App.css";
 
-import {
-  Redirect,
-  Route,
-  Switch,
-  useHistory,
-} from "react-router-dom";
+import { Redirect, Route, Switch, useHistory } from "react-router-dom";
 import React, { useEffect, useState } from "react";
 import { Theme, createStyles, makeStyles, useTheme } from "@material-ui/core";
 
