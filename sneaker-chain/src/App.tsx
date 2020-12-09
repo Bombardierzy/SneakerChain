@@ -1,7 +1,6 @@
 import "./App.css";
 
 import {
-  BrowserRouter,
   Redirect,
   Route,
   Switch,
