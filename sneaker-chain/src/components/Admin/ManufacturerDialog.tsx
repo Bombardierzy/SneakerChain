@@ -31,11 +31,11 @@ export function ManufacturerDialog({
         </DialogContentText>
       </DialogContent>
       <DialogActions>
-        <Button onClick={onAccept} color="primary">
-          Agree
-        </Button>
         <Button onClick={onCancel} color="primary">
           Disagree
+        </Button>
+        <Button onClick={onAccept} color="primary">
+          Agree
         </Button>
       </DialogActions>
     </Dialog>
