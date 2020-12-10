@@ -8,7 +8,7 @@ import {
   DialogContentText,
 } from "@material-ui/core";
 
-interface PendingManufacturersProps {
+interface GasReminderDialogProps {
   onAccept: () => void;
   onCancel: () => void;
   open: boolean;
@@ -18,7 +18,7 @@ export function GasReminderDialog({
   onAccept,
   onCancel,
   open,
-}: PendingManufacturersProps): ReactElement {
+}: GasReminderDialogProps): ReactElement {
   return (
     <Dialog open={open} onClose={onCancel} aria-labelledby="form-dialog-title">
       <DialogTitle id="alert-dialog-title">
