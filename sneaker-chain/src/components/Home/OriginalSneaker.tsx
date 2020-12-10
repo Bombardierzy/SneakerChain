@@ -28,7 +28,7 @@ const useStyles = makeStyles({
 });
 
 interface OriginalSneakerProps {
-  sneaker: Sneaker & {owner: string};
+  sneaker: Sneaker & { owner: string };
   onNext: () => void;
 }
 
@@ -55,7 +55,8 @@ export default function OriginalSneaker({
           Manufacturer: <br /> {sneaker.manufacturer}
         </Typography>
         <Typography className={classes.pos} color="textSecondary">
-          Owner: <br />{ sneaker.owner}
+          Owner: <br />
+          {sneaker.owner}
         </Typography>
         <Typography variant="body2" component="p">
           Model Id: {sneaker.modelId}

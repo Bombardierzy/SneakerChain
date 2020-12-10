@@ -32,11 +32,17 @@ export function Admin(): ReactElement {
       if (contract && (!verifiedManufacturers || !pendingManufacturers)) {
         try {
           const pendingRole = web3.utils.keccak256("PENDING_MANUFACTURER");
-          const verifiedRole = web3.utils.keccak256("MANUFACTURER");
+          const verifiedRole = web3.utils.keccak256("MANUFACTURER_ROLE");
 
-          const pendingCount = parseInt(
-            await contract.methods.getRoleMemberCount(pendingRole).call()
-          );
+          let a = await contract.methods.getRoleMemberCount(pendingRole).call();
+          console.log(a);
+          const pendingCount = parseInt(a);
+
+          a = await contract.methods.getRoleMemberCount(verifiedRole).call();
+          console.log(a);
+          const verifiedCount = parseInt(a);
+
+          console.log(pendingCount, verifiedCount);
 
           let pending: PendingManufacturer[] = [];
           for (let i = 0; i < pendingCount; i++) {
@@ -50,15 +56,15 @@ export function Admin(): ReactElement {
           }
 
           let verified: string[] = [];
-          const verifiedCount = parseInt(
-            await contract.methods.getRoleMemberCount(verifiedRole).call()
-          );
           for (let i = 0; i < verifiedCount; i++) {
             const address = await contract.methods
               .getRoleMember(verifiedRole, i)
               .call();
             verified.push(address);
           }
+
+          console.log(verified);
+          console.log(pending);
 
           dispatch({ type: "SET_MANUFACTURERS", verified, pending });
         } catch (error) {

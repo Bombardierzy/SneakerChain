@@ -80,7 +80,7 @@ contract CryptoSneaker is CustomERC721, AccessControl {
         }
 
         emit ManufacturerApproved(_candidate, _amount);
-        revokeRole(PENDING_MANUFACTURER, msg.sender);
+        revokeRole(PENDING_MANUFACTURER, _candidate);
         _setupRole(MANUFACTURER_ROLE, _candidate);
     } 
     
