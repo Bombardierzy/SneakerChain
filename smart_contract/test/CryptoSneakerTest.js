@@ -13,7 +13,7 @@ contract("CryptoSneaker", (accounts) => {
     value: amount,
   };
 
-  const sneakerModelId = 1337;
+  const sneakerModelId = "#13333";
   const sneakerName = "Travis Scott - Yeezy gold";
   const sneakerSize = 46;
 
@@ -76,6 +76,25 @@ contract("CryptoSneaker", (accounts) => {
     
     expect(approved.args.amount.cmp(new BN(amount))).equal(0);
   });
+  
+  it("should allow admin to deny manufacturer request", async () => {
+    const candidate = manufacturerCandidateArgs.from;
+    await deployed.requestManufacturerRole(manufacturerCandidateArgs);
+
+    const result = await deployed.disapproveManufacturer(candidate, {
+      from: admin,
+    });
+
+    truffleAssert.eventEmitted(result, "ManufacturerDisapproved", { manufacturer: candidate });
+
+    const role = await deployed.PENDING_MANUFACTURER();
+    truffleAssert.eventEmitted(result, "RoleRevoked", {
+      account: candidate,
+      role,
+    });
+    
+    // TODO: check that all amount has been returned to the candidate
+  });
 
   it("should return excess ether to the requester if admin didn't specify all amount", async () => {
     const candidate = manufacturerCandidateArgs.from;
@@ -129,14 +148,14 @@ contract("CryptoSneaker", (accounts) => {
     expect(tokenId.toNumber()).to.be.a("number");
 
     const sneaker = await deployed.sneakers(tokenId.toNumber());
-    const { name, size, manufacturer, modelID } = sneaker;
+    const { name, size, manufacturer, modelId } = sneaker;
     expect(manufacturer).to.equal(from);
-    expect(modelID.toNumber()).to.equal(sneakerModelId);
+    expect(modelId).to.equal(sneakerModelId);
     expect(name).to.equal(sneakerName);
     expect(size.toNumber()).to.equal(sneakerSize);
   });
 
-  it("should forbid manufacturer from creating a sneaker token with already existing modelID", async () => {
+  it("should forbid manufacturer from creating a sneaker token with already existing modelId", async () => {
     const { from } = manufacturerCandidateArgs;
     await deployed.requestManufacturerRole(manufacturerCandidateArgs);
     await deployed.approveManufacturer(from, 0);
@@ -148,7 +167,7 @@ contract("CryptoSneaker", (accounts) => {
     );
   });
 
-  it("should forbid manufacturer from creating a sneaker token with too long name", async () => {
+  it("should forbid manufacturer from creating a sneaker token with too long name or too long model id", async () => {
     const { from } = manufacturerCandidateArgs;
     await deployed.requestManufacturerRole(manufacturerCandidateArgs);
     await deployed.approveManufacturer(from, 0);
@@ -160,7 +179,17 @@ contract("CryptoSneaker", (accounts) => {
         sneakerSize,
         { from }
       ),
-      "Sneaker name is too long, expected up to 50 characters"
+      "Sneaker's name is too long, expected up to 50 characters"
+    );
+
+    truffleAssert.reverts(
+      deployed.mint(
+        "this is way to long model id",
+        "name",
+        sneakerSize,
+        { from }
+      ),
+      "Sneaker's model id is too long, expected up to 15 characters"
     );
   });
 

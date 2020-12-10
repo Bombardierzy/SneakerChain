@@ -43,6 +43,12 @@ export type ManufacturerApproved = ContractEventLog<{
   0: string;
   1: string;
 }>;
+export type ManufacturerDisapproved = ContractEventLog<{
+  manufacturer: string;
+  amount: string;
+  0: string;
+  1: string;
+}>;
 export type ManufacturerRequest = ContractEventLog<{
   manufacturer: string;
   amount: string;
@@ -95,6 +101,8 @@ export interface CryptoSneaker extends BaseContract {
     DEFAULT_ADMIN_ROLE(): NonPayableTransactionObject<string>;
 
     MANUFACTURER_ROLE(): NonPayableTransactionObject<string>;
+
+    PENDING_MANUFACTURER(): NonPayableTransactionObject<string>;
 
     /**
      * See {IERC721-approve}.
@@ -222,7 +230,7 @@ export interface CryptoSneaker extends BaseContract {
       arg0: number | string
     ): NonPayableTransactionObject<{
       manufacturer: string;
-      modelID: string;
+      modelId: string;
       size: string;
       name: string;
       0: string;
@@ -282,8 +290,12 @@ export interface CryptoSneaker extends BaseContract {
       _amount: number | string
     ): NonPayableTransactionObject<void>;
 
+    disapproveManufacturer(
+      _candidate: string
+    ): NonPayableTransactionObject<void>;
+
     mint(
-      _modelID: number | string,
+      _modelID: string,
       _name: string,
       _size: number | string
     ): NonPayableTransactionObject<void>;
@@ -304,6 +316,14 @@ export interface CryptoSneaker extends BaseContract {
     ManufacturerApproved(
       options?: EventOptions,
       cb?: Callback<ManufacturerApproved>
+    ): EventEmitter;
+
+    ManufacturerDisapproved(
+      cb?: Callback<ManufacturerDisapproved>
+    ): EventEmitter;
+    ManufacturerDisapproved(
+      options?: EventOptions,
+      cb?: Callback<ManufacturerDisapproved>
     ): EventEmitter;
 
     ManufacturerRequest(cb?: Callback<ManufacturerRequest>): EventEmitter;
@@ -351,6 +371,16 @@ export interface CryptoSneaker extends BaseContract {
     event: "ManufacturerApproved",
     options: EventOptions,
     cb: Callback<ManufacturerApproved>
+  ): void;
+
+  once(
+    event: "ManufacturerDisapproved",
+    cb: Callback<ManufacturerDisapproved>
+  ): void;
+  once(
+    event: "ManufacturerDisapproved",
+    options: EventOptions,
+    cb: Callback<ManufacturerDisapproved>
   ): void;
 
   once(event: "ManufacturerRequest", cb: Callback<ManufacturerRequest>): void;

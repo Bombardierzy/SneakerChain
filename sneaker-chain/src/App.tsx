@@ -11,6 +11,7 @@ import { Inventory } from "./components/Inventory/Inventory";
 import { Manufacturer } from "./components/Manufacturer/Manufacturer";
 import SideDrawer from "./components/Navigation/SideDrawer";
 import SneakerAppBar from "./components/AppBar/SneakerAppBar";
+import { useAccount } from "./hooks/useAccount";
 import { useAppContext } from "./contexts/appContext";
 
 const TITLE = "Sneaker Chain";
@@ -35,6 +36,7 @@ function App() {
   const theme = useTheme();
   const classes = useStyles(theme);
   const history = useHistory();
+  const account = useAccount();
 
   useEffect(() => {
     if (!contract && history) {
@@ -63,9 +65,11 @@ function App() {
           <Route path="/manufacturer">
             <Manufacturer />
           </Route>
-          <Route path="/admin">
-            <Admin />
-          </Route>
+          {account && account.isAdmin && (
+            <Route path="/admin">
+              <Admin />
+            </Route>
+          )}
           <Route path="/home">
             <Home />
           </Route>

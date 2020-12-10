@@ -17,23 +17,24 @@ contract CryptoSneaker is CustomERC721, AccessControl {
     
     bytes32 public constant MANUFACTURER_ROLE = keccak256("MANUFACTURER_ROLE");
     bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
+    bytes32 public constant PENDING_MANUFACTURER = keccak256("PENDING_MANUFACTURER");
     
     event ManufacturerApproved(address manufacturer, uint256 amount);
+    event ManufacturerDisapproved(address manufacturer, uint256 amount);
     event ManufacturerRequest(address manufacturer, uint256 amount);
 
    // Mappint from manufacturer candidate to the amount they offer for joining the manufacturer club
     mapping(address => uint256) public requestedManufacturers;
 
-    
-
     constructor() public CustomERC721("CryptoSneaker", "CS") {
         _setupRole(ADMIN_ROLE, msg.sender);
+        _setRoleAdmin(PENDING_MANUFACTURER, ADMIN_ROLE);
     }
 
 
     struct Sneaker {
         address manufacturer; // address of the manufacturere that minted the sneaker
-        uint32 modelID; // unique id of the sneaker model, should be unique among all manufacturer models, can repeat among others
+        string modelId; // unique id of the sneaker model, should be unique among all manufacturer models, can repeat among others
         uint8 size; // sneaker size
         string name; // name of the model
     }
@@ -42,8 +43,9 @@ contract CryptoSneaker is CustomERC721, AccessControl {
     mapping (bytes32 => uint256) private _sneakerHashes;
 
     // Internal function to create a Sneaker from string (name) and DNA
-    function _sneaker(address _manufacturer, uint32 _id, string memory _name, uint8 _size) internal {
-        require(bytes(_name).length < 50, "Sneaker name is too long, expected up to 50 characters");
+    function _sneaker(address _manufacturer, string memory _modelId, string memory _name, uint8 _size) internal {
+        require(bytes(_modelId).length <= 15, "Sneaker's model id is too long, expected up to 15 characters");
+        require(bytes(_name).length <= 50, "Sneaker's name is too long, expected up to 50 characters");
 
         Counters.increment(_tokenIds);
         uint256 newTokenId = Counters.current(_tokenIds);
@@ -51,9 +53,9 @@ contract CryptoSneaker is CustomERC721, AccessControl {
         _mint(_manufacturer, newTokenId);
         _setTokenURI(newTokenId, _name);
         
-        _sneakerHashes[keccak256(abi.encodePacked(_manufacturer, _id))] = newTokenId;
+        _sneakerHashes[keccak256(abi.encodePacked(_manufacturer, _modelId))] = newTokenId;
 
-        sneakers[newTokenId] = Sneaker(_manufacturer, _id, _size, _name);
+        sneakers[newTokenId] = Sneaker(_manufacturer, _modelId, _size, _name);
     }
     
     // Anybody who wants to become manufacturer has to request it and send some amount of currency
@@ -63,6 +65,7 @@ contract CryptoSneaker is CustomERC721, AccessControl {
         require(!hasRole(MANUFACTURER_ROLE, msg.sender), "Sender is already the manufacturer");
         require(requestedManufacturers[msg.sender] == 0, "Already pending request");
         requestedManufacturers[msg.sender] = msg.value;
+        _setupRole(PENDING_MANUFACTURER, msg.sender);
         emit ManufacturerRequest(msg.sender, msg.value);
     }
     
@@ -77,11 +80,24 @@ contract CryptoSneaker is CustomERC721, AccessControl {
         }
 
         emit ManufacturerApproved(_candidate, _amount);
+        revokeRole(PENDING_MANUFACTURER, msg.sender);
         _setupRole(MANUFACTURER_ROLE, _candidate);
     } 
     
+    function disapproveManufacturer(address payable _candidate) public {
+        require(hasRole(ADMIN_ROLE, msg.sender), "Requires admin role");
+        require(requestedManufacturers[_candidate] > 0, "Candidate must exist to disapprove him");
+        
+        // refund all money to the candidate
+        _candidate.transfer(requestedManufacturers[_candidate]);
+
+        emit ManufacturerDisapproved(_candidate, requestedManufacturers[_candidate]);
+        requestedManufacturers[_candidate] = 0;
+        revokeRole(PENDING_MANUFACTURER, _candidate);
+    }
+    
     // Creates a random Pizza from string (name)
-    function mint(uint32 _modelID, string memory _name, uint8 _size) public {
+    function mint(string memory _modelID, string memory _name, uint8 _size) public {
         require(hasRole(MANUFACTURER_ROLE, msg.sender),"Requires manufacturer role");
         require(_sneakerHashes[keccak256(abi.encodePacked(msg.sender, _modelID))] == 0,  "Given manufacturer already has created a sneaker with given model id");
         _sneaker(msg.sender, _modelID, _name, _size);

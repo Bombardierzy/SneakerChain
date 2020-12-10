@@ -2,12 +2,16 @@ import {
   Button,
   Container,
   Grid,
+  Snackbar,
   TextField,
   Typography,
 } from "@material-ui/core";
+import { ReactElement, useState } from "react";
 
-import { ReactElement } from "react";
+import { Alert } from "@material-ui/lab";
+import { Sneaker } from "../../models/models";
 import { makeStyles } from "@material-ui/core";
+import { useAppContext } from "../../contexts/appContext";
 import { useForm } from "react-hook-form";
 
 const useStyles = makeStyles({
@@ -43,9 +47,42 @@ interface MintTokenInformation {
 }
 
 export function MintToken(): ReactElement {
-  const { register, errors, handleSubmit } = useForm();
-  const onSubmit = (data: MintTokenInformation) => console.log(data);
+  const [{ contract, from }, dispatch] = useAppContext();
+  const { register, errors, reset, handleSubmit } = useForm();
+
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
+
+  const onSubmit = (data: MintTokenInformation) => {
+    mintToken(data);
+  };
   const classes = useStyles();
+
+  const mintToken = async ({ modelId, name, size }: MintTokenInformation) => {
+    if (contract && from) {
+      try {
+        const result = await contract.methods
+          .mint(modelId, name, size.toString())
+          .send({ from, gas: 1000000 });
+        // const result = await contract.methods.mint(modelId, name, size.toString()).send({from, gas: 10});
+        const { tokenId } = result?.events?.Transfer.returnValues || {
+          tokenId: "",
+        };
+
+        const sneaker = await contract.methods.sneakers(tokenId).call();
+
+        dispatch({
+          type: "ADD_SNEAKER",
+          sneaker: { ...sneaker, token: tokenId },
+        });
+        reset();
+        setSuccess(true);
+      } catch (error) {
+        setError("Failed to mint new sneaker. Check if you have enough gas!");
+        console.log(error);
+      }
+    }
+  };
 
   return (
     <div>
@@ -61,9 +98,19 @@ export function MintToken(): ReactElement {
             <TextField
               label="Model Identifier"
               error={errors.modelId}
-              helperText={errors.modelId && "Model Identifier is required"}
+              helperText={
+                (errors.modelId &&
+                  (errors.name.type === "required"
+                    ? "Model Id is required"
+                    : "Model Id has to have between 5 and 15 characters")) ||
+                ""
+              }
               name="modelId"
-              inputRef={register({ required: true })}
+              inputRef={register({
+                required: true,
+                maxLength: 15,
+                minLength: 5,
+              })}
               type="text"
               className={classes.field}
             />
@@ -103,6 +150,22 @@ export function MintToken(): ReactElement {
           </form>
         </Grid>
       </Container>
+      <Snackbar
+        open={error !== null}
+        onClose={() => setError(null)}
+        autoHideDuration={5000}
+      >
+        <Alert severity="error">{error || ""}</Alert>
+      </Snackbar>
+      <Snackbar
+        open={success}
+        onClose={() => setSuccess(false)}
+        autoHideDuration={5000}
+      >
+        <Alert severity="success">
+          New token has been minted. Check your inventory!
+        </Alert>
+      </Snackbar>
     </div>
   );
 }

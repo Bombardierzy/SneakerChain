@@ -1,72 +1,131 @@
-import { ReactElement, useState } from "react";
-import { VerifiedManufacturers } from "./VerifiedManufacturers";
+import { CircularProgress, makeStyles } from "@material-ui/core";
+import { Manufacturer, PendingManufacturer } from "../../models/models";
+import { ReactElement, useEffect, useState } from "react";
+
 import { PendingManufacturers } from "./PendingManufacturers";
 import React from "react";
-import { Manufacturer } from "../../models/models";
+import { VerifiedManufacturers } from "./VerifiedManufacturers";
+import { useAppContext } from "../../contexts/appContext";
+import { web3 } from "../../Contract";
+
+const useStyles = makeStyles({
+  loading: {
+    display: "flex",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: 200,
+  },
+});
 
 export function Admin(): ReactElement {
-  const [verifiedManufacturers, setVerifiedManufacturers] = useState([
-    {
-      name: "Balenciaga",
-      street: "Aleja jana marcina 35",
-      city: "Pacanów",
-      postalCode: "23-356",
-      state: "lubelski",
-      country: "Hiszpania",
-    },
-    {
-      name: "Essa Buty",
-      street: "Bylegdzie 3",
-      city: "Wytrzyszczka",
-      postalCode: "23-231",
-      state: "malopolska",
-      country: "Polska",
-    },
-  ]);
+  const [
+    { contract, from, verifiedManufacturers, pendingManufacturers },
+    dispatch,
+  ] = useAppContext();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const classes = useStyles();
 
-  const [pendingManufacturers, setPendingManufacturers] = useState([
-    {
-      name: "Nike",
-      street: "Aleja jana długosza 5",
-      city: "Kraków",
-      postalCode: "33-333",
-      state: "malopolska",
-      country: "Polska",
-    },
-    {
-      name: "Adidas",
-      street: "Krakowska 3",
-      city: "Wytrzyszczka",
-      postalCode: "23-231",
-      state: "malopolska",
-      country: "Polska",
-    },
-  ]);
+  useEffect(() => {
+    const loadManufacturers = async () => {
+      if (contract && (!verifiedManufacturers || !pendingManufacturers)) {
+        try {
+          const pendingRole = web3.utils.keccak256("PENDING_MANUFACTURER");
+          const verifiedRole = web3.utils.keccak256("MANUFACTURER");
+
+          const pendingCount = parseInt(
+            await contract.methods.getRoleMemberCount(pendingRole).call()
+          );
+
+          let pending: PendingManufacturer[] = [];
+          for (let i = 0; i < pendingCount; i++) {
+            const address = await contract.methods
+              .getRoleMember(pendingRole, i)
+              .call();
+            const amount = await contract.methods
+              .requestedManufacturers(address)
+              .call();
+            pending.push({ address, amount });
+          }
+
+          let verified: string[] = [];
+          const verifiedCount = parseInt(
+            await contract.methods.getRoleMemberCount(verifiedRole).call()
+          );
+          for (let i = 0; i < verifiedCount; i++) {
+            const address = await contract.methods
+              .getRoleMember(verifiedRole, i)
+              .call();
+            verified.push(address);
+          }
+
+          dispatch({ type: "SET_MANUFACTURERS", verified, pending });
+        } catch (error) {
+          console.log(error);
+        }
+      }
+      setLoading(false);
+    };
+
+    loadManufacturers();
+  }, [contract, verifiedManufacturers, pendingManufacturers, dispatch]);
+
+  const acceptManufacturer = async ({
+    address,
+    amount,
+  }: PendingManufacturer) => {
+    if (contract && from) {
+      try {
+        await contract.methods
+          .approveManufacturer(address, amount)
+          .send({ from, gas: 300000 });
+        dispatch({ type: "ACCEPT_MANUFACTURER", manufacturer: { address } });
+      } catch (error) {
+        setError(
+          "Failed to accept manufacturer, make sure you have enought gas!"
+        );
+        console.log(error);
+      }
+    }
+  };
+
+  const denyManufacturer = async ({ address, amount }: PendingManufacturer) => {
+    if (contract && from) {
+      try {
+        await contract.methods
+          .disapproveManufacturer(address)
+          .send({ from, gas: 300000 });
+        dispatch({ type: "DENY_MANUFACTURER", manufacturer: { address } });
+      } catch (error) {
+        setError(
+          "Failed to deny manufacturer, make sure you have enought gas!"
+        );
+        console.log(error);
+      }
+    }
+  };
+
+  if (loading || !pendingManufacturers || !verifiedManufacturers) {
+    return (
+      <div className={classes.loading}>
+        <CircularProgress size={100} />
+      </div>
+    );
+  }
 
   return (
     <>
       <PendingManufacturers
-        manufacturers={pendingManufacturers}
-        onDeny={(manufacturer: Manufacturer) =>
-          setPendingManufacturers(
-            pendingManufacturers.filter((element) => element !== manufacturer)
-          )
-        }
-        onAccept={(manufacturer: Manufacturer) => {
-          setPendingManufacturers(
-            pendingManufacturers.filter((element) => element !== manufacturer)
-          );
-          setVerifiedManufacturers([...verifiedManufacturers, manufacturer]);
+        manufacturers={pendingManufacturers!!}
+        onDeny={(manufacturer: PendingManufacturer) => {
+          denyManufacturer(manufacturer);
+        }}
+        onAccept={(manufacturer: PendingManufacturer) => {
+          acceptManufacturer(manufacturer);
         }}
       />
-      <VerifiedManufacturers
-        manufacturers={verifiedManufacturers}
-        onDelete={(manufacturer: Manufacturer) =>
-          setVerifiedManufacturers(
-            verifiedManufacturers.filter((element) => element !== manufacturer)
-          )
-        }
-      />
+      <VerifiedManufacturers manufacturers={verifiedManufacturers!!} />
     </>
   );
 }

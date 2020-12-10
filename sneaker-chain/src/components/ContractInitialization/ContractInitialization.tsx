@@ -7,7 +7,7 @@ import {
   Typography,
   makeStyles,
 } from "@material-ui/core";
-import { ReactElement, useState } from "react";
+import { ReactElement, useEffect, useState } from "react";
 import { loadCryptoSneakerContract, web3 } from "../../Contract";
 
 import FadeIn from "react-fade-in";
@@ -39,6 +39,8 @@ const useStyles = makeStyles({
   },
 });
 
+const CONTRACT_ADDRESS = "CONTRACT_ADDRESS";
+
 export function ContractInitialization(): ReactElement {
   const [{}, dispatch] = useAppContext();
   const [showTextField, setShowTextField] = useState(false);
@@ -61,6 +63,7 @@ export function ContractInitialization(): ReactElement {
         const contract = loadCryptoSneakerContract(contractAddress);
 
         dispatch({ type: "SET_CONTRACT", contract });
+        localStorage.setItem(CONTRACT_ADDRESS, contractAddress);
         history.push("/home");
       }
     } catch (e) {
@@ -71,6 +74,28 @@ export function ContractInitialization(): ReactElement {
     }
     setLoading(false);
   };
+
+  useEffect(() => {
+    const contractAddress = localStorage.getItem(CONTRACT_ADDRESS);
+    if (contractAddress) {
+      const fetchContract = async () => {
+        try {
+          const code = await web3.eth.getCode(contractAddress);
+          if (code === "0x") {
+            localStorage.removeItem(CONTRACT_ADDRESS);
+          } else {
+            const contract = loadCryptoSneakerContract(contractAddress);
+
+            dispatch({ type: "SET_CONTRACT", contract });
+            history.push("/home");
+          }
+        } catch (e) {
+          localStorage.removeItem(CONTRACT_ADDRESS);
+        }
+      };
+      fetchContract();
+    }
+  }, [dispatch]);
 
   const errorMessage = (
     error: { type: string; message: string } | null | undefined
@@ -115,7 +140,7 @@ export function ContractInitialization(): ReactElement {
               name="contractAddress"
               inputRef={register({
                 required: true,
-                pattern: /^[a-z0-9]{40}$/i,
+                pattern: /^[a-z0-9]{42}$/i,
               })}
               type="text"
               className="w-100"

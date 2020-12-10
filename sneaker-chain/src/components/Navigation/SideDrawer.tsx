@@ -1,15 +1,16 @@
-import React from "react";
-import { ListItemIcon } from "@material-ui/core";
-import HomeIcon from "@material-ui/icons/Home";
-import WidgetsIcon from "@material-ui/icons/Widgets";
 import CreateIcon from "@material-ui/icons/Create";
-import PersonIcon from "@material-ui/icons/Person";
 import Drawer from "@material-ui/core/Drawer";
+import HomeIcon from "@material-ui/icons/Home";
 import { Link } from "react-router-dom";
 import List from "@material-ui/core/List";
 import ListItem from "@material-ui/core/ListItem";
+import { ListItemIcon } from "@material-ui/core";
 import ListItemText from "@material-ui/core/ListItemText";
+import PersonIcon from "@material-ui/icons/Person";
+import React from "react";
+import WidgetsIcon from "@material-ui/icons/Widgets";
 import { makeStyles } from "@material-ui/core/styles";
+import { useAccount } from "../../hooks/useAccount";
 
 const useStyles = makeStyles({
   list: {
@@ -23,6 +24,7 @@ interface SideDrawerProps {
 }
 export default function SideDrawer({ open, toggleOpen }: SideDrawerProps) {
   const classes = useStyles();
+  const account = useAccount();
 
   const toggleDrawer = (event: React.KeyboardEvent | React.MouseEvent) => {
     if (
@@ -36,12 +38,15 @@ export default function SideDrawer({ open, toggleOpen }: SideDrawerProps) {
     toggleOpen();
   };
 
-  const list = [
+  let list = [
     { text: "Home", iconName: HomeIcon },
     { text: "Inventory", iconName: WidgetsIcon },
     { text: "Manufacturer", iconName: CreateIcon },
-    { text: "Admin", iconName: PersonIcon },
   ];
+
+  if (account?.isAdmin) {
+    list.push({ text: "Admin", iconName: PersonIcon });
+  }
 
   const drawerContent = () => (
     <div
