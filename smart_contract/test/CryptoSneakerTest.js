@@ -52,6 +52,11 @@ contract("CryptoSneaker", (accounts) => {
       "Request amount must be greater than 0"
     );
   });
+  
+  it("should return member having given role", async () => {
+    const result = await deployed.getRoleMember.call(web3.utils.keccak256("ADMIN_ROLE"), 0);
+    assert(result === accounts[0]);
+  });
 
   it("should allow admin to accept manufacturer request", async () => {
     const candidate = manufacturerCandidateArgs.from;

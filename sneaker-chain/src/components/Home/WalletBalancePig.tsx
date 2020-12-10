@@ -1,6 +1,7 @@
-import { Typography } from "@material-ui/core";
 import React, { ReactElement } from "react";
+
 import CountUp from "react-countup";
+import { Typography } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core";
 
 const useStyles = makeStyles({
@@ -33,7 +34,7 @@ export function WalletBalancePig(props: { amount: number }): ReactElement {
       <br />
       <CountUp
         start={0}
-        decimals={2}
+        decimals={8}
         end={props.amount}
         decimal="."
         duration={4}

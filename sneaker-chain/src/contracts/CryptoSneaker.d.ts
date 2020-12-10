@@ -2,481 +2,385 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import { BigNumber } from "bignumber.js";
+import BN from "bn.js";
+import { ContractOptions } from "web3-eth-contract";
+import { EventLog } from "web3-core";
+import { EventEmitter } from "events";
+import {
+  Callback,
+  PayableTransactionObject,
+  NonPayableTransactionObject,
+  BlockType,
+  ContractEventLog,
+  BaseContract,
+} from "./types";
 
-export interface CryptoSneakerContract
-  extends Truffle.Contract<CryptoSneakerInstance> {
-  "new"(meta?: Truffle.TransactionDetails): Promise<CryptoSneakerInstance>;
+interface EventOptions {
+  filter?: object;
+  fromBlock?: BlockType;
+  topics?: string[];
 }
 
-export interface Approval {
-  name: "Approval";
-  args: {
-    owner: string;
-    approved: string;
-    tokenId: BigNumber;
-  };
-}
+export type Approval = ContractEventLog<{
+  owner: string;
+  approved: string;
+  tokenId: string;
+  0: string;
+  1: string;
+  2: string;
+}>;
+export type ApprovalForAll = ContractEventLog<{
+  owner: string;
+  operator: string;
+  approved: boolean;
+  0: string;
+  1: string;
+  2: boolean;
+}>;
+export type ManufacturerApproved = ContractEventLog<{
+  manufacturer: string;
+  amount: string;
+  0: string;
+  1: string;
+}>;
+export type ManufacturerRequest = ContractEventLog<{
+  manufacturer: string;
+  amount: string;
+  0: string;
+  1: string;
+}>;
+export type RoleAdminChanged = ContractEventLog<{
+  role: string;
+  previousAdminRole: string;
+  newAdminRole: string;
+  0: string;
+  1: string;
+  2: string;
+}>;
+export type RoleGranted = ContractEventLog<{
+  role: string;
+  account: string;
+  sender: string;
+  0: string;
+  1: string;
+  2: string;
+}>;
+export type RoleRevoked = ContractEventLog<{
+  role: string;
+  account: string;
+  sender: string;
+  0: string;
+  1: string;
+  2: string;
+}>;
+export type Transfer = ContractEventLog<{
+  from: string;
+  to: string;
+  tokenId: string;
+  0: string;
+  1: string;
+  2: string;
+}>;
 
-export interface ApprovalForAll {
-  name: "ApprovalForAll";
-  args: {
-    owner: string;
-    operator: string;
-    approved: boolean;
-  };
-}
+export interface CryptoSneaker extends BaseContract {
+  constructor(
+    jsonInterface: any[],
+    address?: string,
+    options?: ContractOptions
+  ): CryptoSneaker;
+  clone(): CryptoSneaker;
+  methods: {
+    ADMIN_ROLE(): NonPayableTransactionObject<string>;
 
-export interface ManufacturerApproved {
-  name: "ManufacturerApproved";
-  args: {
-    manufacturer: string;
-    amount: BigNumber;
-  };
-}
+    DEFAULT_ADMIN_ROLE(): NonPayableTransactionObject<string>;
 
-export interface ManufacturerRequest {
-  name: "ManufacturerRequest";
-  args: {
-    manufacturer: string;
-    amount: BigNumber;
-  };
-}
+    MANUFACTURER_ROLE(): NonPayableTransactionObject<string>;
 
-export interface RoleAdminChanged {
-  name: "RoleAdminChanged";
-  args: {
-    role: string;
-    previousAdminRole: string;
-    newAdminRole: string;
-  };
-}
+    /**
+     * See {IERC721-approve}.
+     */
+    approve(
+      to: string,
+      tokenId: number | string
+    ): NonPayableTransactionObject<void>;
 
-export interface RoleGranted {
-  name: "RoleGranted";
-  args: {
-    role: string;
-    account: string;
-    sender: string;
-  };
-}
+    /**
+     * See {IERC721-balanceOf}.
+     */
+    balanceOf(owner: string): NonPayableTransactionObject<string>;
 
-export interface RoleRevoked {
-  name: "RoleRevoked";
-  args: {
-    role: string;
-    account: string;
-    sender: string;
-  };
-}
+    /**
+     * Returns the base URI set via {_setBaseURI}. This will be automatically added as a prefix in {tokenURI} to each token's URI, or to the token ID if no specific URI is set for that token ID.
+     */
+    baseURI(): NonPayableTransactionObject<string>;
 
-export interface Transfer {
-  name: "Transfer";
-  args: {
-    from: string;
-    to: string;
-    tokenId: BigNumber;
-  };
-}
+    /**
+     * See {IERC721-getApproved}.
+     */
+    getApproved(tokenId: number | string): NonPayableTransactionObject<string>;
 
-type AllEvents =
-  | Approval
-  | ApprovalForAll
-  | ManufacturerApproved
-  | ManufacturerRequest
-  | RoleAdminChanged
-  | RoleGranted
-  | RoleRevoked
-  | Transfer;
+    /**
+     * Returns the admin role that controls `role`. See {grantRole} and {revokeRole}.     * To change a role's admin, use {_setRoleAdmin}.
+     */
+    getRoleAdmin(role: string | number[]): NonPayableTransactionObject<string>;
 
-export interface CryptoSneakerInstance extends Truffle.ContractInstance {
-  ADMIN_ROLE(txDetails?: Truffle.TransactionDetails): Promise<string>;
+    /**
+     * Returns one of the accounts that have `role`. `index` must be a value between 0 and {getRoleMemberCount}, non-inclusive.     * Role bearers are not sorted in any particular way, and their ordering may change at any point.     * WARNING: When using {getRoleMember} and {getRoleMemberCount}, make sure you perform all queries on the same block. See the following https://forum.openzeppelin.com/t/iterating-over-elements-on-enumerableset-in-openzeppelin-contracts/2296[forum post] for more information.
+     */
+    getRoleMember(
+      role: string | number[],
+      index: number | string
+    ): NonPayableTransactionObject<string>;
 
-  DEFAULT_ADMIN_ROLE(txDetails?: Truffle.TransactionDetails): Promise<string>;
+    /**
+     * Returns the number of accounts that have `role`. Can be used together with {getRoleMember} to enumerate all bearers of a role.
+     */
+    getRoleMemberCount(
+      role: string | number[]
+    ): NonPayableTransactionObject<string>;
 
-  MANUFACTURER_ROLE(txDetails?: Truffle.TransactionDetails): Promise<string>;
+    /**
+     * Grants `role` to `account`.     * If `account` had not been already granted `role`, emits a {RoleGranted} event.     * Requirements:     * - the caller must have ``role``'s admin role.
+     */
+    grantRole(
+      role: string | number[],
+      account: string
+    ): NonPayableTransactionObject<void>;
 
-  /**
-   * See {IERC721-approve}.
-   */
-  approve: {
-    (
-      to: string | BigNumber,
-      tokenId: number | BigNumber | string,
-      txDetails?: Truffle.TransactionDetails
-    ): Promise<Truffle.TransactionResponse<AllEvents>>;
-    call(
-      to: string | BigNumber,
-      tokenId: number | BigNumber | string,
-      txDetails?: Truffle.TransactionDetails
-    ): Promise<void>;
-    sendTransaction(
-      to: string | BigNumber,
-      tokenId: number | BigNumber | string,
-      txDetails?: Truffle.TransactionDetails
-    ): Promise<string>;
-    estimateGas(
-      to: string | BigNumber,
-      tokenId: number | BigNumber | string,
-      txDetails?: Truffle.TransactionDetails
-    ): Promise<number>;
-  };
+    /**
+     * Returns `true` if `account` has been granted `role`.
+     */
+    hasRole(
+      role: string | number[],
+      account: string
+    ): NonPayableTransactionObject<boolean>;
 
-  /**
-   * See {IERC721-balanceOf}.
-   */
-  balanceOf(
-    owner: string | BigNumber,
-    txDetails?: Truffle.TransactionDetails
-  ): Promise<BigNumber>;
+    /**
+     * See {IERC721-isApprovedForAll}.
+     */
+    isApprovedForAll(
+      owner: string,
+      operator: string
+    ): NonPayableTransactionObject<boolean>;
 
-  /**
-   * Returns the base URI set via {_setBaseURI}. This will be automatically added as a prefix in {tokenURI} to each token's URI, or to the token ID if no specific URI is set for that token ID.
-   */
-  baseURI(txDetails?: Truffle.TransactionDetails): Promise<string>;
+    /**
+     * See {IERC721Metadata-name}.
+     */
+    name(): NonPayableTransactionObject<string>;
 
-  /**
-   * See {IERC721-getApproved}.
-   */
-  getApproved(
-    tokenId: number | BigNumber | string,
-    txDetails?: Truffle.TransactionDetails
-  ): Promise<string>;
+    /**
+     * See {IERC721-ownerOf}.
+     */
+    ownerOf(tokenId: number | string): NonPayableTransactionObject<string>;
 
-  /**
-   * Returns the admin role that controls `role`. See {grantRole} and {revokeRole}.     * To change a role's admin, use {_setRoleAdmin}.
-   */
-  getRoleAdmin(
-    role: string | BigNumber,
-    txDetails?: Truffle.TransactionDetails
-  ): Promise<string>;
+    /**
+     * Revokes `role` from the calling account.     * Roles are often managed via {grantRole} and {revokeRole}: this function's purpose is to provide a mechanism for accounts to lose their privileges if they are compromised (such as when a trusted device is misplaced).     * If the calling account had been granted `role`, emits a {RoleRevoked} event.     * Requirements:     * - the caller must be `account`.
+     */
+    renounceRole(
+      role: string | number[],
+      account: string
+    ): NonPayableTransactionObject<void>;
 
-  /**
-   * Returns one of the accounts that have `role`. `index` must be a value between 0 and {getRoleMemberCount}, non-inclusive.     * Role bearers are not sorted in any particular way, and their ordering may change at any point.     * WARNING: When using {getRoleMember} and {getRoleMemberCount}, make sure you perform all queries on the same block. See the following https://forum.openzeppelin.com/t/iterating-over-elements-on-enumerableset-in-openzeppelin-contracts/2296[forum post] for more information.
-   */
-  getRoleMember(
-    role: string | BigNumber,
-    index: number | BigNumber | string,
-    txDetails?: Truffle.TransactionDetails
-  ): Promise<string>;
+    requestedManufacturers(arg0: string): NonPayableTransactionObject<string>;
 
-  /**
-   * Returns the number of accounts that have `role`. Can be used together with {getRoleMember} to enumerate all bearers of a role.
-   */
-  getRoleMemberCount(
-    role: string | BigNumber,
-    txDetails?: Truffle.TransactionDetails
-  ): Promise<BigNumber>;
+    /**
+     * Revokes `role` from `account`.     * If `account` had been granted `role`, emits a {RoleRevoked} event.     * Requirements:     * - the caller must have ``role``'s admin role.
+     */
+    revokeRole(
+      role: string | number[],
+      account: string
+    ): NonPayableTransactionObject<void>;
 
-  /**
-   * Grants `role` to `account`.     * If `account` had not been already granted `role`, emits a {RoleGranted} event.     * Requirements:     * - the caller must have ``role``'s admin role.
-   */
-  grantRole: {
-    (
-      role: string | BigNumber,
-      account: string | BigNumber,
-      txDetails?: Truffle.TransactionDetails
-    ): Promise<Truffle.TransactionResponse<AllEvents>>;
-    call(
-      role: string | BigNumber,
-      account: string | BigNumber,
-      txDetails?: Truffle.TransactionDetails
-    ): Promise<void>;
-    sendTransaction(
-      role: string | BigNumber,
-      account: string | BigNumber,
-      txDetails?: Truffle.TransactionDetails
-    ): Promise<string>;
-    estimateGas(
-      role: string | BigNumber,
-      account: string | BigNumber,
-      txDetails?: Truffle.TransactionDetails
-    ): Promise<number>;
-  };
+    /**
+     * See {IERC721-safeTransferFrom}.
+     */
+    "safeTransferFrom(address,address,uint256)"(
+      from: string,
+      to: string,
+      tokenId: number | string
+    ): NonPayableTransactionObject<void>;
 
-  /**
-   * Returns `true` if `account` has been granted `role`.
-   */
-  hasRole(
-    role: string | BigNumber,
-    account: string | BigNumber,
-    txDetails?: Truffle.TransactionDetails
-  ): Promise<boolean>;
+    /**
+     * See {IERC721-safeTransferFrom}.
+     */
+    "safeTransferFrom(address,address,uint256,bytes)"(
+      from: string,
+      to: string,
+      tokenId: number | string,
+      _data: string | number[]
+    ): NonPayableTransactionObject<void>;
 
-  /**
-   * See {IERC721-isApprovedForAll}.
-   */
-  isApprovedForAll(
-    owner: string | BigNumber,
-    operator: string | BigNumber,
-    txDetails?: Truffle.TransactionDetails
-  ): Promise<boolean>;
+    /**
+     * See {IERC721-setApprovalForAll}.
+     */
+    setApprovalForAll(
+      operator: string,
+      approved: boolean
+    ): NonPayableTransactionObject<void>;
 
-  /**
-   * See {IERC721Metadata-name}.
-   */
-  name(txDetails?: Truffle.TransactionDetails): Promise<string>;
+    sneakers(
+      arg0: number | string
+    ): NonPayableTransactionObject<{
+      manufacturer: string;
+      modelID: string;
+      size: string;
+      name: string;
+      0: string;
+      1: string;
+      2: string;
+      3: string;
+    }>;
 
-  /**
-   * See {IERC721-ownerOf}.
-   */
-  ownerOf(
-    tokenId: number | BigNumber | string,
-    txDetails?: Truffle.TransactionDetails
-  ): Promise<string>;
+    /**
+     * See {IERC165-supportsInterface}.     * Time complexity O(1), guaranteed to always use less than 30 000 gas.
+     */
+    supportsInterface(
+      interfaceId: string | number[]
+    ): NonPayableTransactionObject<boolean>;
 
-  /**
-   * Revokes `role` from the calling account.     * Roles are often managed via {grantRole} and {revokeRole}: this function's purpose is to provide a mechanism for accounts to lose their privileges if they are compromised (such as when a trusted device is misplaced).     * If the calling account had been granted `role`, emits a {RoleRevoked} event.     * Requirements:     * - the caller must be `account`.
-   */
-  renounceRole: {
-    (
-      role: string | BigNumber,
-      account: string | BigNumber,
-      txDetails?: Truffle.TransactionDetails
-    ): Promise<Truffle.TransactionResponse<AllEvents>>;
-    call(
-      role: string | BigNumber,
-      account: string | BigNumber,
-      txDetails?: Truffle.TransactionDetails
-    ): Promise<void>;
-    sendTransaction(
-      role: string | BigNumber,
-      account: string | BigNumber,
-      txDetails?: Truffle.TransactionDetails
-    ): Promise<string>;
-    estimateGas(
-      role: string | BigNumber,
-      account: string | BigNumber,
-      txDetails?: Truffle.TransactionDetails
-    ): Promise<number>;
-  };
+    /**
+     * See {IERC721Metadata-symbol}.
+     */
+    symbol(): NonPayableTransactionObject<string>;
 
-  requestedManufacturers(
-    arg0: string | BigNumber,
-    txDetails?: Truffle.TransactionDetails
-  ): Promise<BigNumber>;
+    /**
+     * See {IERC721Enumerable-tokenByIndex}.
+     */
+    tokenByIndex(index: number | string): NonPayableTransactionObject<string>;
 
-  /**
-   * Revokes `role` from `account`.     * If `account` had been granted `role`, emits a {RoleRevoked} event.     * Requirements:     * - the caller must have ``role``'s admin role.
-   */
-  revokeRole: {
-    (
-      role: string | BigNumber,
-      account: string | BigNumber,
-      txDetails?: Truffle.TransactionDetails
-    ): Promise<Truffle.TransactionResponse<AllEvents>>;
-    call(
-      role: string | BigNumber,
-      account: string | BigNumber,
-      txDetails?: Truffle.TransactionDetails
-    ): Promise<void>;
-    sendTransaction(
-      role: string | BigNumber,
-      account: string | BigNumber,
-      txDetails?: Truffle.TransactionDetails
-    ): Promise<string>;
-    estimateGas(
-      role: string | BigNumber,
-      account: string | BigNumber,
-      txDetails?: Truffle.TransactionDetails
-    ): Promise<number>;
-  };
+    /**
+     * See {IERC721Enumerable-tokenOfOwnerByIndex}.
+     */
+    tokenOfOwnerByIndex(
+      owner: string,
+      index: number | string
+    ): NonPayableTransactionObject<string>;
 
-  /**
-   * See {IERC721-safeTransferFrom}.
-   */
-  safeTransferFrom: {
-    (
-      from: string | BigNumber,
-      to: string | BigNumber,
-      tokenId: number | BigNumber | string,
-      txDetails?: Truffle.TransactionDetails
-    ): Promise<Truffle.TransactionResponse<AllEvents>>;
-    call(
-      from: string | BigNumber,
-      to: string | BigNumber,
-      tokenId: number | BigNumber | string,
-      txDetails?: Truffle.TransactionDetails
-    ): Promise<void>;
-    sendTransaction(
-      from: string | BigNumber,
-      to: string | BigNumber,
-      tokenId: number | BigNumber | string,
-      txDetails?: Truffle.TransactionDetails
-    ): Promise<string>;
-    estimateGas(
-      from: string | BigNumber,
-      to: string | BigNumber,
-      tokenId: number | BigNumber | string,
-      txDetails?: Truffle.TransactionDetails
-    ): Promise<number>;
-  };
+    /**
+     * See {IERC721Metadata-tokenURI}.
+     */
+    tokenURI(tokenId: number | string): NonPayableTransactionObject<string>;
 
-  /**
-   * See {IERC721-setApprovalForAll}.
-   */
-  setApprovalForAll: {
-    (
-      operator: string | BigNumber,
-      approved: boolean,
-      txDetails?: Truffle.TransactionDetails
-    ): Promise<Truffle.TransactionResponse<AllEvents>>;
-    call(
-      operator: string | BigNumber,
-      approved: boolean,
-      txDetails?: Truffle.TransactionDetails
-    ): Promise<void>;
-    sendTransaction(
-      operator: string | BigNumber,
-      approved: boolean,
-      txDetails?: Truffle.TransactionDetails
-    ): Promise<string>;
-    estimateGas(
-      operator: string | BigNumber,
-      approved: boolean,
-      txDetails?: Truffle.TransactionDetails
-    ): Promise<number>;
-  };
+    /**
+     * See {IERC721Enumerable-totalSupply}.
+     */
+    totalSupply(): NonPayableTransactionObject<string>;
 
-  sneakers(
-    arg0: number | BigNumber | string,
-    txDetails?: Truffle.TransactionDetails
-  ): Promise<[string, BigNumber, BigNumber, string]>;
+    /**
+     * See {IERC721-transferFrom}.
+     */
+    transferFrom(
+      from: string,
+      to: string,
+      tokenId: number | string
+    ): NonPayableTransactionObject<void>;
 
-  /**
-   * See {IERC165-supportsInterface}.     * Time complexity O(1), guaranteed to always use less than 30 000 gas.
-   */
-  supportsInterface(
-    interfaceId: string | BigNumber,
-    txDetails?: Truffle.TransactionDetails
-  ): Promise<boolean>;
+    requestManufacturerRole(): PayableTransactionObject<void>;
 
-  /**
-   * See {IERC721Metadata-symbol}.
-   */
-  symbol(txDetails?: Truffle.TransactionDetails): Promise<string>;
+    approveManufacturer(
+      _candidate: string,
+      _amount: number | string
+    ): NonPayableTransactionObject<void>;
 
-  /**
-   * See {IERC721Enumerable-tokenByIndex}.
-   */
-  tokenByIndex(
-    index: number | BigNumber | string,
-    txDetails?: Truffle.TransactionDetails
-  ): Promise<BigNumber>;
-
-  /**
-   * See {IERC721Enumerable-tokenOfOwnerByIndex}.
-   */
-  tokenOfOwnerByIndex(
-    owner: string | BigNumber,
-    index: number | BigNumber | string,
-    txDetails?: Truffle.TransactionDetails
-  ): Promise<BigNumber>;
-
-  /**
-   * See {IERC721Metadata-tokenURI}.
-   */
-  tokenURI(
-    tokenId: number | BigNumber | string,
-    txDetails?: Truffle.TransactionDetails
-  ): Promise<string>;
-
-  /**
-   * See {IERC721Enumerable-totalSupply}.
-   */
-  totalSupply(txDetails?: Truffle.TransactionDetails): Promise<BigNumber>;
-
-  /**
-   * See {IERC721-transferFrom}.
-   */
-  transferFrom: {
-    (
-      from: string | BigNumber,
-      to: string | BigNumber,
-      tokenId: number | BigNumber | string,
-      txDetails?: Truffle.TransactionDetails
-    ): Promise<Truffle.TransactionResponse<AllEvents>>;
-    call(
-      from: string | BigNumber,
-      to: string | BigNumber,
-      tokenId: number | BigNumber | string,
-      txDetails?: Truffle.TransactionDetails
-    ): Promise<void>;
-    sendTransaction(
-      from: string | BigNumber,
-      to: string | BigNumber,
-      tokenId: number | BigNumber | string,
-      txDetails?: Truffle.TransactionDetails
-    ): Promise<string>;
-    estimateGas(
-      from: string | BigNumber,
-      to: string | BigNumber,
-      tokenId: number | BigNumber | string,
-      txDetails?: Truffle.TransactionDetails
-    ): Promise<number>;
-  };
-
-  requestManufacturerRole: {
-    (txDetails?: Truffle.TransactionDetails): Promise<
-      Truffle.TransactionResponse<AllEvents>
-    >;
-    call(txDetails?: Truffle.TransactionDetails): Promise<void>;
-    sendTransaction(txDetails?: Truffle.TransactionDetails): Promise<string>;
-    estimateGas(txDetails?: Truffle.TransactionDetails): Promise<number>;
-  };
-
-  approveManufacturer: {
-    (
-      _candidate: string | BigNumber,
-      _amount: number | BigNumber | string,
-      txDetails?: Truffle.TransactionDetails
-    ): Promise<Truffle.TransactionResponse<AllEvents>>;
-    call(
-      _candidate: string | BigNumber,
-      _amount: number | BigNumber | string,
-      txDetails?: Truffle.TransactionDetails
-    ): Promise<void>;
-    sendTransaction(
-      _candidate: string | BigNumber,
-      _amount: number | BigNumber | string,
-      txDetails?: Truffle.TransactionDetails
-    ): Promise<string>;
-    estimateGas(
-      _candidate: string | BigNumber,
-      _amount: number | BigNumber | string,
-      txDetails?: Truffle.TransactionDetails
-    ): Promise<number>;
-  };
-
-  mint: {
-    (
-      _modelID: number | BigNumber | string,
+    mint(
+      _modelID: number | string,
       _name: string,
-      _size: number | BigNumber | string,
-      txDetails?: Truffle.TransactionDetails
-    ): Promise<Truffle.TransactionResponse<AllEvents>>;
-    call(
-      _modelID: number | BigNumber | string,
-      _name: string,
-      _size: number | BigNumber | string,
-      txDetails?: Truffle.TransactionDetails
-    ): Promise<void>;
-    sendTransaction(
-      _modelID: number | BigNumber | string,
-      _name: string,
-      _size: number | BigNumber | string,
-      txDetails?: Truffle.TransactionDetails
-    ): Promise<string>;
-    estimateGas(
-      _modelID: number | BigNumber | string,
-      _name: string,
-      _size: number | BigNumber | string,
-      txDetails?: Truffle.TransactionDetails
-    ): Promise<number>;
+      _size: number | string
+    ): NonPayableTransactionObject<void>;
+
+    getSneakersByOwner(_owner: string): NonPayableTransactionObject<string[]>;
+  };
+  events: {
+    Approval(cb?: Callback<Approval>): EventEmitter;
+    Approval(options?: EventOptions, cb?: Callback<Approval>): EventEmitter;
+
+    ApprovalForAll(cb?: Callback<ApprovalForAll>): EventEmitter;
+    ApprovalForAll(
+      options?: EventOptions,
+      cb?: Callback<ApprovalForAll>
+    ): EventEmitter;
+
+    ManufacturerApproved(cb?: Callback<ManufacturerApproved>): EventEmitter;
+    ManufacturerApproved(
+      options?: EventOptions,
+      cb?: Callback<ManufacturerApproved>
+    ): EventEmitter;
+
+    ManufacturerRequest(cb?: Callback<ManufacturerRequest>): EventEmitter;
+    ManufacturerRequest(
+      options?: EventOptions,
+      cb?: Callback<ManufacturerRequest>
+    ): EventEmitter;
+
+    RoleAdminChanged(cb?: Callback<RoleAdminChanged>): EventEmitter;
+    RoleAdminChanged(
+      options?: EventOptions,
+      cb?: Callback<RoleAdminChanged>
+    ): EventEmitter;
+
+    RoleGranted(cb?: Callback<RoleGranted>): EventEmitter;
+    RoleGranted(
+      options?: EventOptions,
+      cb?: Callback<RoleGranted>
+    ): EventEmitter;
+
+    RoleRevoked(cb?: Callback<RoleRevoked>): EventEmitter;
+    RoleRevoked(
+      options?: EventOptions,
+      cb?: Callback<RoleRevoked>
+    ): EventEmitter;
+
+    Transfer(cb?: Callback<Transfer>): EventEmitter;
+    Transfer(options?: EventOptions, cb?: Callback<Transfer>): EventEmitter;
+
+    allEvents(options?: EventOptions, cb?: Callback<EventLog>): EventEmitter;
   };
 
-  getSneakersByOwner(
-    _owner: string | BigNumber,
-    txDetails?: Truffle.TransactionDetails
-  ): Promise<BigNumber[]>;
+  once(event: "Approval", cb: Callback<Approval>): void;
+  once(event: "Approval", options: EventOptions, cb: Callback<Approval>): void;
+
+  once(event: "ApprovalForAll", cb: Callback<ApprovalForAll>): void;
+  once(
+    event: "ApprovalForAll",
+    options: EventOptions,
+    cb: Callback<ApprovalForAll>
+  ): void;
+
+  once(event: "ManufacturerApproved", cb: Callback<ManufacturerApproved>): void;
+  once(
+    event: "ManufacturerApproved",
+    options: EventOptions,
+    cb: Callback<ManufacturerApproved>
+  ): void;
+
+  once(event: "ManufacturerRequest", cb: Callback<ManufacturerRequest>): void;
+  once(
+    event: "ManufacturerRequest",
+    options: EventOptions,
+    cb: Callback<ManufacturerRequest>
+  ): void;
+
+  once(event: "RoleAdminChanged", cb: Callback<RoleAdminChanged>): void;
+  once(
+    event: "RoleAdminChanged",
+    options: EventOptions,
+    cb: Callback<RoleAdminChanged>
+  ): void;
+
+  once(event: "RoleGranted", cb: Callback<RoleGranted>): void;
+  once(
+    event: "RoleGranted",
+    options: EventOptions,
+    cb: Callback<RoleGranted>
+  ): void;
+
+  once(event: "RoleRevoked", cb: Callback<RoleRevoked>): void;
+  once(
+    event: "RoleRevoked",
+    options: EventOptions,
+    cb: Callback<RoleRevoked>
+  ): void;
+
+  once(event: "Transfer", cb: Callback<Transfer>): void;
+  once(event: "Transfer", options: EventOptions, cb: Callback<Transfer>): void;
 }
