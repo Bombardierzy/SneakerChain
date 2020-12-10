@@ -7,7 +7,8 @@ export type AppActions =
   | { type: "SET_CONTRACT"; contract: CryptoSneaker }
   | { type: "SET_FROM"; from: string }
   | { type: "SET_ACCOUNT"; account: Account }
-  | { type: "ADD_SNEAKER"; sneaker: Sneaker };
+  | { type: "ADD_SNEAKER"; sneaker: Sneaker }
+  | { type: "REMOVE_SNEAKER"; sneaker: Sneaker };
 
 export interface AppStoreInterface {
   contractAddress: string;
@@ -41,6 +42,18 @@ export default function appReducer(
         const { sneakers } = state.account;
         sneakers.push(action.sneaker);
         return { ...state, account: { ...state.account, sneakers } };
+      }
+      return state;
+    case "REMOVE_SNEAKER":
+      if (state.account) {
+        const { sneakers } = state.account;
+        return {
+          ...state,
+          account: {
+            ...state.account,
+            sneakers: sneakers.filter((s) => s.token !== action.sneaker.token),
+          },
+        };
       }
       return state;
     default:

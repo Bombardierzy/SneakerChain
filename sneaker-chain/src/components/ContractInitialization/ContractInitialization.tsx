@@ -140,7 +140,7 @@ export function ContractInitialization(): ReactElement {
               name="contractAddress"
               inputRef={register({
                 required: true,
-                pattern: /^[a-z0-9]{40}$/i,
+                pattern: /^[a-z0-9]{42}$/i,
               })}
               type="text"
               className="w-100"
