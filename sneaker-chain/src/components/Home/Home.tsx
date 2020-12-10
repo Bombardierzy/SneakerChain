@@ -43,23 +43,21 @@ const useStyles = makeStyles({
   },
 });
 
+interface SneakerCheckResult {
+  valid: boolean;
+  sneaker?: Sneaker & {owner: string};
+}
+
 // This component should be responsible for loading wallets from MetaMask
 export function Home(): ReactElement {
-  const [{ from }, dispatch] = useAppContext();
+  const [{ contract, from }, dispatch] = useAppContext();
   const [error, setError] = useState<string | null>(null);
   const [balance, setBalance] = useState<number | null>(null);
   const { register, errors, handleSubmit } = useForm();
 
-  const [checkSneaker, setCheckSneaker] = useState<string | null>(null);
+  const [sneakerCheck, setSneakerCheck] = useState<SneakerCheckResult | null>(null);
   const [token, setToken] = useState("");
 
-  const sneaker: Sneaker = {
-    token: "random token",
-    modelId: "random model id",
-    manufacturer: "random address",
-    size: "10",
-    name: "Random sneaker name",
-  };
 
   useEffect(() => {
     const fetchWallet = async () => {
@@ -90,9 +88,28 @@ export function Home(): ReactElement {
     fetchBalance();
   }, [from, setBalance]);
 
-  const onSubmit = (data: { token: string }) => {
-    setCheckSneaker(data.token);
+  const onSubmit = ({token}: { token: string }) => {
+    checkToken(token);
   };
+  
+  const checkToken = async (token: string) => {
+    if (contract) {
+      try {
+        const {name, size, manufacturer, modelId} = await contract.methods.sneakers(token).call();
+        // if sneaker does not exist it default to zero in all fields
+        if (manufacturer === "0x0000000000000000000000000000000000000000") {
+          setSneakerCheck({valid: false});
+        } else {
+          const owner = await contract.methods.ownerOf(token).call();
+          setSneakerCheck({valid: true, sneaker: {token, name, size, manufacturer, modelId, owner}});
+        }
+      } catch (error) {
+        // TODO: it might come from other error than invalid token format
+        setSneakerCheck({valid: false});
+        console.log(error);
+      }
+    }
+  }
 
   const classes = useStyles();
 
@@ -108,16 +125,16 @@ export function Home(): ReactElement {
             )}
           </Grid>
           <Grid item md={6}>
-            {checkSneaker ? (
-              checkSneaker === "random" ? (
+            {sneakerCheck ? (
+              sneakerCheck.valid ? (
                 <OriginalSneaker
-                  sneaker={sneaker}
-                  onNext={() => setCheckSneaker(null)}
+                  sneaker={sneakerCheck.sneaker!!}
+                  onNext={() => setSneakerCheck(null)}
                 />
               ) : (
                 <FakeSneaker
-                  token={checkSneaker}
-                  onNext={() => setCheckSneaker(null)}
+                  token={token}
+                  onNext={() => setSneakerCheck(null)}
                 />
               )
             ) : (
