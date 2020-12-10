@@ -1,8 +1,8 @@
 export interface Sneaker {
   token: string;
   manufacturer: string;
-  modelId: string;
-  size: number;
+  modelID: string;
+  size: string;
   name: string;
 }
 
@@ -13,4 +13,10 @@ export interface Manufacturer {
   postalCode: string;
   state: string;
   country: string;
+}
+
+export interface Account {
+  isManufacturer: boolean;
+  isAdmin: boolean;
+  sneakers: Sneaker[];
 }

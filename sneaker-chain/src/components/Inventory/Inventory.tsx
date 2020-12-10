@@ -18,6 +18,7 @@ import {
 import React, { ReactElement, useState } from "react";
 
 import { Sneaker } from "../../models/models";
+import { useAccount } from "../../hooks/useAccount";
 
 const useStyles = makeStyles({
   table: {
@@ -34,29 +35,7 @@ export function Inventory(): ReactElement {
     setActiveSneaker(null);
   };
 
-  const sneakers: Sneaker[] = [
-    {
-      token: "1",
-      manufacturer: "address 1",
-      modelId: "model 1",
-      size: 15,
-      name: "sneaker 1",
-    },
-    {
-      token: "2",
-      manufacturer: "address 2",
-      modelId: "model 2",
-      size: 10,
-      name: "sneaker 2",
-    },
-    {
-      token: "3",
-      manufacturer: "address 3",
-      modelId: "model 3",
-      size: 9,
-      name: "sneaker 3",
-    },
-  ];
+  const account = useAccount();
 
   return (
     <>
@@ -72,12 +51,12 @@ export function Inventory(): ReactElement {
             </TableRow>
           </TableHead>
           <TableBody>
-            {sneakers.map((row) => (
+            {(account?.sneakers || []).map((row) => (
               <TableRow key={row.token}>
                 <TableCell component="th" scope="row">
                   {row.name}
                 </TableCell>
-                <TableCell align="center">{row.modelId}</TableCell>
+                <TableCell align="center">{row.modelID}</TableCell>
                 <TableCell align="center">{row.manufacturer}</TableCell>
                 <TableCell align="center">{row.size}</TableCell>
                 <TableCell align="center">
@@ -111,7 +90,7 @@ export function Inventory(): ReactElement {
             transfer selected sneaker. Remember that once sent you can't get
             your sneaker back unless the new owner sends it back. Make sure that
             you use correct address or you will lose your token forever!
-            {activeSneaker?.name} - {activeSneaker?.modelId}
+            {activeSneaker?.name} - {activeSneaker?.modelID}
           </DialogContentText>
           <TextField
             autoFocus

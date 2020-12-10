@@ -1,8 +1,9 @@
 import { ReactElement, useState } from "react";
-import { VerifiedManufacturers } from "./VerifiedManufacturers";
+
+import { Manufacturer } from "../../models/models";
 import { PendingManufacturers } from "./PendingManufacturers";
 import React from "react";
-import { Manufacturer } from "../../models/models";
+import { VerifiedManufacturers } from "./VerifiedManufacturers";
 
 export function Admin(): ReactElement {
   const [verifiedManufacturers, setVerifiedManufacturers] = useState([

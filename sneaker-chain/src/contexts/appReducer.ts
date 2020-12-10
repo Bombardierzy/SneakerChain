@@ -1,20 +1,26 @@
+import { Account, Sneaker } from "../models/models";
+
 import { CryptoSneaker } from "../contracts/CryptoSneaker";
 
 export type AppActions =
   | { type: "SET_CONTRACT_ADDRESS"; contractAddress: string }
   | { type: "SET_CONTRACT"; contract: CryptoSneaker }
-  | { type: "SET_FROM"; from: string };
+  | { type: "SET_FROM"; from: string }
+  | { type: "SET_ACCOUNT"; account: Account }
+  | { type: "ADD_SNEAKER"; sneaker: Sneaker };
 
 export interface AppStoreInterface {
   contractAddress: string;
   contract: CryptoSneaker | null;
   from: string | null;
+  account: Account | null;
 }
 
 export const appInitialState: AppStoreInterface = {
   contractAddress: "",
   contract: null,
   from: null,
+  account: null,
 };
 
 export default function appReducer(
@@ -28,6 +34,15 @@ export default function appReducer(
       return { ...state, contract: action.contract };
     case "SET_FROM":
       return { ...state, from: action.from };
+    case "SET_ACCOUNT":
+      return { ...state, account: action.account };
+    case "ADD_SNEAKER":
+      if (state.account) {
+        const { sneakers } = state.account;
+        sneakers.push(action.sneaker);
+        return { ...state, account: { ...state.account, sneakers } };
+      }
+      return state;
     default:
       return state;
   }

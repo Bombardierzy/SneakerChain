@@ -55,19 +55,17 @@ export function Home(): ReactElement {
 
   const sneaker: Sneaker = {
     token: "random token",
-    modelId: "random model id",
+    modelID: "random model id",
     manufacturer: "random address",
-    size: 10,
+    size: "10",
     name: "Random sneaker name",
   };
 
   useEffect(() => {
-    if (from) return;
     const fetchWallet = async () => {
       try {
-        const {
-          result: [account],
-        } = await window.ethereum.send("eth_requestAccounts");
+        await window.ethereum.send("eth_requestAccounts");
+        const account: string = window.ethereum.selectedAddress;
 
         dispatch({ type: "SET_FROM", from: account });
       } catch (error) {
@@ -103,7 +101,11 @@ export function Home(): ReactElement {
       <Container>
         <Grid container spacing={2}>
           <Grid item md={6} className={classes.content}>
-            {from && balance ? <WalletBalancePig amount={balance} /> : <></>}
+            {from && balance !== null ? (
+              <WalletBalancePig amount={balance} />
+            ) : (
+              <></>
+            )}
           </Grid>
           <Grid item md={6}>
             {checkSneaker ? (
