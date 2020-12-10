@@ -1,7 +1,7 @@
 import "./App.css";
 
-import { Redirect, Route, Switch, useHistory } from "react-router-dom";
 import React, { useEffect, useState } from "react";
+import { Redirect, Route, Switch, useHistory } from "react-router-dom";
 import { Theme, createStyles, makeStyles, useTheme } from "@material-ui/core";
 
 import { Admin } from "./components/Admin/Admin";
@@ -30,22 +30,21 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 function App() {
-  const [{ contractAddress }] = useAppContext();
+  const [{ contract }] = useAppContext();
   const [openDrawer, setOpenDrawer] = useState(false);
   const theme = useTheme();
   const classes = useStyles(theme);
   const history = useHistory();
 
   useEffect(() => {
-    console.log("should push", contractAddress, history);
-    if (contractAddress === "" && history) {
+    if (!contract && history) {
       history.push("/initialization");
     }
-  }, [history, contractAddress]);
+  }, [history, contract]);
 
   return (
     <>
-      {contractAddress !== "" && (
+      {contract && (
         <SneakerAppBar
           title={TITLE}
           toggleDrawer={() => setOpenDrawer(!openDrawer)}

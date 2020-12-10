@@ -31,7 +31,6 @@ export function Inventory(): ReactElement {
 
   const onCancel = () => setActiveSneaker(null);
   const onTransfer = () => {
-    console.log(`Transfering ${activeSneaker}`);
     setActiveSneaker(null);
   };
 

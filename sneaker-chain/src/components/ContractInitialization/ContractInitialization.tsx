@@ -1,5 +1,6 @@
 import {
   Button,
+  CircularProgress,
   Container,
   FormLabel,
   TextField,
@@ -7,6 +8,7 @@ import {
   makeStyles,
 } from "@material-ui/core";
 import { ReactElement, useState } from "react";
+import { loadCryptoSneakerContract, web3 } from "../../Contract";
 
 import FadeIn from "react-fade-in";
 import Typing from "react-typing-animation";
@@ -40,16 +42,50 @@ const useStyles = makeStyles({
 export function ContractInitialization(): ReactElement {
   const [{}, dispatch] = useAppContext();
   const [showTextField, setShowTextField] = useState(false);
+  const [loading, setLoading] = useState(false);
   const { register, errors, handleSubmit, setError } = useForm();
   const classes = useStyles();
   const history = useHistory();
 
-  const onSubmit = ({ contract }: { contract: string }) => {
-    if (contract === "essa") {
-      dispatch({ type: "SET_CONTRACT_ADDRESS", contractAddress: contract });
-      history.push("/home");
-    } else {
-      setError("contract", { message: "Contract has not been found" });
+  const onSubmit = async ({
+    contractAddress,
+  }: {
+    contractAddress: string;
+  }): Promise<void> => {
+    setLoading(true);
+    try {
+      const code = await web3.eth.getCode(contractAddress);
+      if (code === "0x") {
+        setError("contractAddress", { message: "Contract has not been found" });
+      } else {
+        const contract = loadCryptoSneakerContract(contractAddress);
+
+        dispatch({ type: "SET_CONTRACT", contract });
+        history.push("/home");
+      }
+    } catch (e) {
+      console.log(e);
+      setError("contractAddress", {
+        message: "Unknown message, please try again later...",
+      });
+    }
+    setLoading(false);
+  };
+
+  const errorMessage = (
+    error: { type: string; message: string } | null | undefined
+  ): string => {
+    if (!error) return "";
+
+    switch (error.type) {
+      case "required": {
+        return "Contract address is required";
+      }
+      case "pattern": {
+        return "Invalid address pattern, make sure it has 40 characters and consists of lowercase letters and digits";
+      }
+      default:
+        return error.message;
     }
   };
 
@@ -74,17 +110,24 @@ export function ContractInitialization(): ReactElement {
           <form onSubmit={handleSubmit(onSubmit)}>
             <TextField
               label="Contract"
-              error={errors?.contract}
-              helperText={errors?.contract?.message || ""}
-              name="contract"
-              inputRef={register({ required: true })}
+              error={errors?.contractAddress}
+              helperText={errorMessage(errors?.contractAddress)}
+              name="contractAddress"
+              inputRef={register({
+                required: true,
+                pattern: /^[a-z0-9]{40}$/i,
+              })}
               type="text"
               className="w-100"
             ></TextField>
             <div className="text-center mt-4">
-              <Button type="submit" color="primary" variant="contained">
-                Load contract
-              </Button>
+              {loading ? (
+                <CircularProgress />
+              ) : (
+                <Button type="submit" color="primary" variant="contained">
+                  Load contract
+                </Button>
+              )}
             </div>
           </form>
         </FadeIn>

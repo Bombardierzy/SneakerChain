@@ -1,23 +1,24 @@
-import "mdbreact/dist/css/mdb.css";
-import "@fortawesome/fontawesome-free/css/all.min.css";
 import "bootstrap-css-only/css/bootstrap.min.css";
 
 import {
   Button,
   Container,
   Grid,
-  Typography,
-  FormLabel,
+  Snackbar,
   TextField,
+  Typography,
 } from "@material-ui/core";
-import { ContractContext, web3 } from "../../Contract";
-import React, { ReactElement, useContext, useEffect, useState } from "react";
+import React, { ReactElement, useEffect, useState } from "react";
+
+import { Alert } from "@material-ui/lab";
 import FakeSneaker from "./FakeSneaker";
 import OriginalSneaker from "./OriginalSneaker";
 import { Sneaker } from "../../models/models";
-import { makeStyles } from "@material-ui/core";
 import { WalletBalancePig } from "./WalletBalancePig";
+import { makeStyles } from "@material-ui/core";
+import { useAppContext } from "../../contexts/appContext";
 import { useForm } from "react-hook-form";
+import { web3 } from "../../Contract";
 
 const useStyles = makeStyles({
   header: {
@@ -44,14 +45,14 @@ const useStyles = makeStyles({
 
 // This component should be responsible for loading wallets from MetaMask
 export function Home(): ReactElement {
-  const contract = useContext(ContractContext);
-  const [account, setAccount] = useState<string | null>(null);
+  const [{ from }, dispatch] = useAppContext();
   const [error, setError] = useState<string | null>(null);
-  const [amount, setAmount] = useState(30);
+  const [balance, setBalance] = useState<number | null>(null);
   const { register, errors, handleSubmit } = useForm();
 
   const [checkSneaker, setCheckSneaker] = useState<string | null>(null);
   const [token, setToken] = useState("");
+
   const sneaker: Sneaker = {
     token: "random token",
     modelId: "random model id",
@@ -61,35 +62,48 @@ export function Home(): ReactElement {
   };
 
   useEffect(() => {
+    if (from) return;
     const fetchWallet = async () => {
       try {
         const {
           result: [account],
         } = await window.ethereum.send("eth_requestAccounts");
-        console.log(account);
-        setAccount(account);
-        setAmount(parseInt(await web3.eth.getBalance(account)));
+
+        dispatch({ type: "SET_FROM", from: account });
       } catch (error) {
-        setError("Error happened while fetching wallet!");
+        console.log(error);
+        setError(
+          "Error happened while fetching wallet! Make sure you have enabled MetaMask!"
+        );
       }
     };
-
     fetchWallet();
-  }, []);
+  }, [dispatch, from]);
+
+  useEffect(() => {
+    const fetchBalance = async () => {
+      if (from) {
+        const balance = parseFloat(
+          web3.utils.fromWei(await web3.eth.getBalance(from), "ether")
+        );
+        setBalance(balance);
+      }
+    };
+    fetchBalance();
+  }, [from, setBalance]);
 
   const onSubmit = (data: { token: string }) => {
-    console.log(data);
     setCheckSneaker(data.token);
   };
 
   const classes = useStyles();
 
   return (
-    <div>
+    <>
       <Container>
         <Grid container spacing={2}>
           <Grid item md={6} className={classes.content}>
-            <WalletBalancePig amount={amount} />
+            {from && balance ? <WalletBalancePig amount={balance} /> : <></>}
           </Grid>
           <Grid item md={6}>
             {checkSneaker ? (
@@ -111,7 +125,8 @@ export function Home(): ReactElement {
                     Check sneaker
                   </Typography>
                   <TextField
-                    label={!errors.token ? "Token" : "Token is required"}
+                    label="Token"
+                    helperText={(errors?.token && "Token is required") || ""}
                     type="text"
                     name="token"
                     className={classes.textField}
@@ -135,6 +150,9 @@ export function Home(): ReactElement {
           </Grid>
         </Grid>
       </Container>
-    </div>
+      <Snackbar open={error !== null} autoHideDuration={5000}>
+        <Alert severity="error">{error || ""}</Alert>
+      </Snackbar>
+    </>
   );
 }
