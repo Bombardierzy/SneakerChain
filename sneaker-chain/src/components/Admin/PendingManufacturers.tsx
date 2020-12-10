@@ -1,7 +1,8 @@
-import { ReactElement } from "react";
+import { ReactElement, useState } from "react";
 import { Button } from "@material-ui/core";
 import { Manufacturer } from "../../models/models";
 import { ManufacturersTable } from "./ManufacturersTable";
+import { GasReminderDialog } from "./GasReminderDialog";
 
 interface PendingManufacturersProps {
   manufacturers: Manufacturer[];
@@ -14,6 +15,9 @@ export function PendingManufacturers({
   onDeny,
   onAccept,
 }: PendingManufacturersProps): ReactElement {
+  const [openAcceptDialog, setOpenAcceptDialog] = useState(false);
+  const [openDenyDialog, setOpenDenyDialog] = useState(false);
+
   return (
     <ManufacturersTable
       title="Pending Manufacturers"
@@ -25,7 +29,7 @@ export function PendingManufacturers({
             className="mr-2"
             variant="contained"
             color="primary"
-            onClick={() => onAccept(row)}
+            onClick={() => setOpenAcceptDialog(true)}
           >
             Accept
           </Button>
@@ -33,10 +37,23 @@ export function PendingManufacturers({
             className="ml-2"
             variant="contained"
             color="secondary"
-            onClick={() => onDeny(row)}
+            onClick={() => setOpenDenyDialog(true)}
           >
             Deny
           </Button>
+          <GasReminderDialog
+            open={openAcceptDialog || openDenyDialog}
+            onAccept={() => {
+              if (openAcceptDialog) onAccept(row);
+              else if (openDenyDialog) onDeny(row);
+              setOpenAcceptDialog(false);
+              setOpenDenyDialog(false);
+            }}
+            onCancel={() => {
+              setOpenAcceptDialog(false);
+              setOpenDenyDialog(false);
+            }}
+          />
         </>
       )}
     </ManufacturersTable>
