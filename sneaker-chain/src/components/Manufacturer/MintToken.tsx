@@ -98,9 +98,19 @@ export function MintToken(): ReactElement {
             <TextField
               label="Model Identifier"
               error={errors.modelId}
-              helperText={errors.modelId && "Model Identifier is required"}
+              helperText={
+                (errors.modelId &&
+                  (errors.name.type === "required"
+                    ? "Model Id is required"
+                    : "Model Id has to have between 5 and 15 characters")) ||
+                ""
+              }
               name="modelId"
-              inputRef={register({ required: true })}
+              inputRef={register({
+                required: true,
+                maxLength: 15,
+                minLength: 5,
+              })}
               type="text"
               className={classes.field}
             />

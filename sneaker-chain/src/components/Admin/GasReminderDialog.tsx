@@ -1,12 +1,13 @@
-import { ReactElement, useState } from "react";
 import {
   Button,
   Dialog,
   DialogActions,
-  DialogTitle,
   DialogContent,
   DialogContentText,
+  DialogTitle,
 } from "@material-ui/core";
+
+import { ReactElement } from "react";
 
 interface GasReminderDialogProps {
   onAccept: () => void;
@@ -31,11 +32,11 @@ export function GasReminderDialog({
         </DialogContentText>
       </DialogContent>
       <DialogActions>
-        <Button onClick={onCancel} color="primary">
-          Disagree
+        <Button onClick={onCancel} color="default">
+          Cancel
         </Button>
         <Button onClick={onAccept} color="primary">
-          Agree
+          Continue
         </Button>
       </DialogActions>
     </Dialog>

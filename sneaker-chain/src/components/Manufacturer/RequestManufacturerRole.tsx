@@ -53,7 +53,7 @@ export function RequestManufacturerRole({
     try {
       await contract.methods
         .requestManufacturerRole()
-        .send({ from, value: amount });
+        .send({ from, value: amount, gas: 200000 });
       onSuccess();
     } catch (error) {
       console.log(error);

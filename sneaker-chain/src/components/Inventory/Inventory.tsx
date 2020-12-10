@@ -89,7 +89,7 @@ export function Inventory(): ReactElement {
                 <TableCell component="th" scope="row">
                   {row.name}
                 </TableCell>
-                <TableCell align="center">{row.modelID}</TableCell>
+                <TableCell align="center">{row.modelId}</TableCell>
                 <TableCell align="center">{row.manufacturer}</TableCell>
                 <TableCell align="center">{row.size}</TableCell>
                 <TableCell align="center">
@@ -124,7 +124,7 @@ export function Inventory(): ReactElement {
             your sneaker back unless the new owner sends it back. Make sure that
             you use correct address or you will lose your token forever!
             <br />
-            Name: {activeSneaker?.name} - Model ID: {activeSneaker?.modelID}
+            Name: {activeSneaker?.name} - Model ID: {activeSneaker?.modelId}
           </DialogContentText>
           <form>
             <TextField

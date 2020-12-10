@@ -26,12 +26,12 @@ export const useAccount = () => {
           for (const token of sneakerTokens) {
             const {
               manufacturer,
-              modelID,
+              modelId,
               size,
               name,
             } = await contract.methods.sneakers(token).call();
 
-            sneakers.push({ token, manufacturer, modelID, size, name });
+            sneakers.push({ token, manufacturer, modelId, size, name });
           }
 
           dispatch({

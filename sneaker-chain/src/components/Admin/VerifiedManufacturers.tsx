@@ -1,44 +1,59 @@
-import { ReactElement, useState } from "react";
-import { Button } from "@material-ui/core";
-import { Manufacturer } from "../../models/models";
-import { ManufacturersTable } from "./ManufacturersTable";
-import { GasReminderDialog } from "./GasReminderDialog";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Typography,
+  makeStyles,
+} from "@material-ui/core";
+
+import { ReactElement } from "react";
+
+const useStyles = makeStyles({
+  table: {
+    width: "100%",
+  },
+  header: {
+    display: "flex",
+    justifyContent: "center",
+    marginTop: 60,
+    marginBottom: 20,
+    fontSize: 25,
+  },
+});
 
 interface VerifiedManufacturersProps {
-  manufacturers: Manufacturer[];
-  onDelete: (manufacturer: Manufacturer) => void;
+  manufacturers: string[];
 }
 
 export function VerifiedManufacturers({
   manufacturers,
-  onDelete,
 }: VerifiedManufacturersProps): ReactElement {
-  const [openDialog, setOpenDialog] = useState(false);
+  const classes = useStyles();
 
   return (
-    <ManufacturersTable
-      title="Verified Manufacturers"
-      manufacturers={manufacturers}
-    >
-      {(row: Manufacturer) => (
-        <>
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={() => setOpenDialog(true)}
-          >
-            Delete Manufacturer
-          </Button>
-          <GasReminderDialog
-            open={openDialog}
-            onAccept={() => {
-              onDelete(row);
-              setOpenDialog(false);
-            }}
-            onCancel={() => setOpenDialog(false)}
-          />
-        </>
-      )}
-    </ManufacturersTable>
+    <div>
+      <Typography variant="h1" className={classes.header}>
+        Verified manufacturers
+      </Typography>
+      <TableContainer className={classes.table}>
+        <Table className={classes.table} aria-label="simple table">
+          <TableHead>
+            <TableRow>
+              <TableCell align="center">Address</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {manufacturers.map((address) => (
+              <TableRow key={address}>
+                <TableCell align="center">{address}</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+    </div>
   );
 }

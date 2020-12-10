@@ -55,7 +55,7 @@ export function Home(): ReactElement {
 
   const sneaker: Sneaker = {
     token: "random token",
-    modelID: "random model id",
+    modelId: "random model id",
     manufacturer: "random address",
     size: "10",
     name: "Random sneaker name",
