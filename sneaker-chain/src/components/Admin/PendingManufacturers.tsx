@@ -2,7 +2,7 @@ import { ReactElement, useState } from "react";
 import { Button } from "@material-ui/core";
 import { Manufacturer } from "../../models/models";
 import { ManufacturersTable } from "./ManufacturersTable";
-import { ManufacturerDialog } from "./ManufacturerDialog";
+import { GasReminderDialog } from "./GasReminderDialog";
 
 interface PendingManufacturersProps {
   manufacturers: Manufacturer[];
@@ -41,7 +41,7 @@ export function PendingManufacturers({
           >
             Deny
           </Button>
-          <ManufacturerDialog
+          <GasReminderDialog
             open={openAcceptDialog || openDenyDialog}
             onAccept={() => {
               if (openAcceptDialog) onAccept(row);

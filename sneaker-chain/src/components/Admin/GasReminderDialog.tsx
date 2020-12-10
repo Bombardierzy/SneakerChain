@@ -14,7 +14,7 @@ interface PendingManufacturersProps {
   open: boolean;
 }
 
-export function ManufacturerDialog({
+export function GasReminderDialog({
   onAccept,
   onCancel,
   open,

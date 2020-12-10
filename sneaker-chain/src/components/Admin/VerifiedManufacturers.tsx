@@ -2,7 +2,7 @@ import { ReactElement, useState } from "react";
 import { Button } from "@material-ui/core";
 import { Manufacturer } from "../../models/models";
 import { ManufacturersTable } from "./ManufacturersTable";
-import { ManufacturerDialog } from "./ManufacturerDialog";
+import { GasReminderDialog } from "./GasReminderDialog";
 
 interface VerifiedManufacturersProps {
   manufacturers: Manufacturer[];
@@ -29,7 +29,7 @@ export function VerifiedManufacturers({
           >
             Delete Manufacturer
           </Button>
-          <ManufacturerDialog
+          <GasReminderDialog
             open={openDialog}
             onAccept={() => {
               onDelete(row);
