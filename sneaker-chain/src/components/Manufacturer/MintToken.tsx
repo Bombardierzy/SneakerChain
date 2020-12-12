@@ -146,11 +146,13 @@ export function MintToken(): ReactElement {
               className={classes.field}
             />
             <div className="text-center mt-4">
-              {loading ? <CircularProgress size={40} /> : 
-              <Button type="submit" variant="contained" color="primary">
-                Submit
-              </Button>
-              }
+              {loading ? (
+                <CircularProgress size={40} />
+              ) : (
+                <Button type="submit" variant="contained" color="primary">
+                  Submit
+                </Button>
+              )}
             </div>
           </form>
         </Grid>
@@ -162,10 +164,10 @@ export function MintToken(): ReactElement {
       >
         <Alert severity="error">{error || ""}</Alert>
       </Snackbar>
-      <Snackbar
-        open={loading}
-      >
-        <Alert severity="info">Waiting for a token to be mined by the network!</Alert>
+      <Snackbar open={loading}>
+        <Alert severity="info">
+          Waiting for a token to be mined by the network!
+        </Alert>
       </Snackbar>
       <Snackbar
         open={success}
