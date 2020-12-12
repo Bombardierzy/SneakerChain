@@ -23,8 +23,8 @@ const useStyles = makeStyles({
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
-    justifyContent: "center"
-  }
+    justifyContent: "center",
+  },
 });
 
 // This component should be responsible for loading wallets from MetaMask
@@ -36,7 +36,11 @@ export function WalletBalancePig(props: { amount: number }): ReactElement {
       <Typography variant="h1" className={classes.header}>
         Wallet Balance
       </Typography>
-      <img alt="Piggy" src="https://image.freepik.com/free-vector/money-box-form-pig_97231-276.jpg" className={classes.piggy} />
+      <img
+        alt="Piggy"
+        src="https://image.freepik.com/free-vector/money-box-form-pig_97231-276.jpg"
+        className={classes.piggy}
+      />
       <CountUp
         start={0}
         decimals={8}

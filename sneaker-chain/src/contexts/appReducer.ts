@@ -16,7 +16,10 @@ export type AppActions =
     }
   | { type: "ACCEPT_MANUFACTURER"; manufacturer: { address: string } }
   | { type: "DENY_MANUFACTURER"; manufacturer: { address: string } }
-  | { type: "LOADING_MANUFACTURER_APPROVE", manufacturer: { address: string } | null};
+  | {
+      type: "LOADING_MANUFACTURER_APPROVE";
+      manufacturer: { address: string } | null;
+    };
 
 export interface AppStoreInterface {
   contractAddress: string;
@@ -25,7 +28,7 @@ export interface AppStoreInterface {
   account: Account | null;
   pendingManufacturers: PendingManufacturer[] | null;
   verifiedManufacturers: string[] | null;
-  loadingManufacturerApprove: { address: string;} | null;
+  loadingManufacturerApprove: { address: string } | null;
 }
 
 export const appInitialState: AppStoreInterface = {

@@ -46,7 +46,7 @@ export function PendingManufacturers({
   onDeny,
   onAccept,
 }: PendingManufacturersProps): ReactElement {
-  const [{loadingManufacturerApprove}] = useAppContext();
+  const [{ loadingManufacturerApprove }] = useAppContext();
   const [actionDialog, setActionDialog] = useState<ActionDialog | null>(null);
   const classes = useStyles();
 
@@ -72,20 +72,21 @@ export function PendingManufacturers({
                   {web3.utils.fromWei(amount, "ether")}
                 </TableCell>
                 <TableCell align="center">
-                {loadingManufacturerApprove?.address === address ?
-                  <CircularProgress size={40} /> :
-                  <>
-                    <Button
-                      className="mr-2"
-                      disabled={!!loadingManufacturerApprove}
-                      variant="contained"
-                      color="primary"
-                      onClick={() =>
-                        setActionDialog({
-                          accept: true,
-                          manufacturer: { address, amount },
-                        })
-                      }
+                  {loadingManufacturerApprove?.address === address ? (
+                    <CircularProgress size={40} />
+                  ) : (
+                    <>
+                      <Button
+                        className="mr-2"
+                        disabled={!!loadingManufacturerApprove}
+                        variant="contained"
+                        color="primary"
+                        onClick={() =>
+                          setActionDialog({
+                            accept: true,
+                            manufacturer: { address, amount },
+                          })
+                        }
                       >
                         Accept
                       </Button>
@@ -104,7 +105,7 @@ export function PendingManufacturers({
                         Deny
                       </Button>
                     </>
-              }
+                  )}
                 </TableCell>
               </TableRow>
             ))}

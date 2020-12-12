@@ -21,7 +21,13 @@ const useStyles = makeStyles({
 
 export function Admin(): ReactElement {
   const [
-    { contract, from, verifiedManufacturers, pendingManufacturers, loadingManufacturerApprove },
+    {
+      contract,
+      from,
+      verifiedManufacturers,
+      pendingManufacturers,
+      loadingManufacturerApprove,
+    },
     dispatch,
   ] = useAppContext();
   const [loading, setLoading] = useState(false);
@@ -84,11 +90,14 @@ export function Admin(): ReactElement {
   }: PendingManufacturer) => {
     if (contract && from) {
       try {
-        dispatch({ type: "LOADING_MANUFACTURER_APPROVE", manufacturer: {address}});
+        dispatch({
+          type: "LOADING_MANUFACTURER_APPROVE",
+          manufacturer: { address },
+        });
         await contract.methods
           .approveManufacturer(address, amount)
           .send({ from, gas: 300000 });
-        dispatch({ type: "LOADING_MANUFACTURER_APPROVE", manufacturer: null});
+        dispatch({ type: "LOADING_MANUFACTURER_APPROVE", manufacturer: null });
         dispatch({ type: "ACCEPT_MANUFACTURER", manufacturer: { address } });
       } catch (error) {
         setError(
@@ -136,7 +145,9 @@ export function Admin(): ReactElement {
       />
       <VerifiedManufacturers manufacturers={verifiedManufacturers!!} />
       <Snackbar open={!!loadingManufacturerApprove}>
-        <Alert severity="info">Waiting for a transaction to accept manufacturer.</Alert>
+        <Alert severity="info">
+          Waiting for a transaction to accept manufacturer.
+        </Alert>
       </Snackbar>
     </>
   );

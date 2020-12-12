@@ -36,7 +36,10 @@ export function Inventory(): ReactElement {
   const classes = useStyles();
   const [activeSneaker, setActiveSneaker] = useState<Sneaker | null>(null);
 
-  const [transferringSneaker, setTransferringSneaker] = useState<Sneaker | null>(null);
+  const [
+    transferringSneaker,
+    setTransferringSneaker,
+  ] = useState<Sneaker | null>(null);
 
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
@@ -107,7 +110,6 @@ export function Inventory(): ReactElement {
                       onClick={() => {
                         setActiveSneaker(row);
                         console.log(row);
-
                       }}
                     >
                       Transfer ownership
