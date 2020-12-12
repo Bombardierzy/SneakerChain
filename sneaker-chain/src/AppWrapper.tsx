@@ -6,7 +6,7 @@ import { ReactElement } from "react";
 export function AppWrapper(): ReactElement {
   return (
     <AppContextProvider>
-      <BrowserRouter>
+      <BrowserRouter basename={process.env.PUBLIC_URL}>
         <App />
       </BrowserRouter>
     </AppContextProvider>
