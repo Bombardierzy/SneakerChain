@@ -15,7 +15,11 @@ export type AppActions =
       pending: PendingManufacturer[];
     }
   | { type: "ACCEPT_MANUFACTURER"; manufacturer: { address: string } }
-  | { type: "DENY_MANUFACTURER"; manufacturer: { address: string } };
+  | { type: "DENY_MANUFACTURER"; manufacturer: { address: string } }
+  | {
+      type: "LOADING_MANUFACTURER_APPROVE";
+      manufacturer: { address: string } | null;
+    };
 
 export interface AppStoreInterface {
   contractAddress: string;
@@ -24,6 +28,7 @@ export interface AppStoreInterface {
   account: Account | null;
   pendingManufacturers: PendingManufacturer[] | null;
   verifiedManufacturers: string[] | null;
+  loadingManufacturerApprove: { address: string } | null;
 }
 
 export const appInitialState: AppStoreInterface = {
@@ -33,6 +38,7 @@ export const appInitialState: AppStoreInterface = {
   account: null,
   pendingManufacturers: null,
   verifiedManufacturers: null,
+  loadingManufacturerApprove: null,
 };
 
 export default function appReducer(
@@ -88,6 +94,9 @@ export default function appReducer(
       const pending =
         pendingManufacturers?.filter((el) => el.address !== address) || [];
       return { ...state, pendingManufacturers: pending };
+    }
+    case "LOADING_MANUFACTURER_APPROVE": {
+      return { ...state, loadingManufacturerApprove: action.manufacturer };
     }
     default:
       return state;

@@ -12,6 +12,9 @@ import { ReactElement } from "react";
 import { makeStyles } from "@material-ui/core";
 import { useAppContext } from "../../contexts/appContext";
 import { web3 } from "../../Contract";
+import { useState } from "react";
+import React from "react";
+import { CircularProgress } from "@material-ui/core";
 
 const useStyles = makeStyles({
   header: {
@@ -43,6 +46,7 @@ export function RequestManufacturerRole({
 }: RequestManufacturerRoleProps): ReactElement {
   const [{ contract, from }] = useAppContext();
   const { register, errors, handleSubmit } = useForm();
+  const [loading, setLoading] = useState(false);
 
   const onSubmit = ({ amount }: { amount: number }) => {
     requestManufacturerRole(amount);
@@ -52,9 +56,11 @@ export function RequestManufacturerRole({
   const requestManufacturerRole = async (amount: number) => {
     if (!contract || !from) return;
     try {
+      setLoading(true);
       await contract.methods
         .requestManufacturerRole()
         .send({ from, value: amount, gas: 200000 });
+      setLoading(false);
       onSuccess();
     } catch (error) {
       console.log(error);
@@ -81,9 +87,13 @@ export function RequestManufacturerRole({
             />
 
             <div className="text-center mt-4">
-              <Button type="submit" color="primary" variant="contained">
-                Apply for manufacturer
-              </Button>
+              {loading ? (
+                <CircularProgress size={40} />
+              ) : (
+                <Button type="submit" color="primary" variant="contained">
+                  Apply for manufacturer
+                </Button>
+              )}
             </div>
           </form>
         </Grid>

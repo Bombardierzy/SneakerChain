@@ -1,6 +1,7 @@
-import { CircularProgress, makeStyles } from "@material-ui/core";
+import { CircularProgress, makeStyles, Snackbar } from "@material-ui/core";
 import { Manufacturer, PendingManufacturer } from "../../models/models";
 import { ReactElement, useEffect, useState } from "react";
+import { Alert } from "@material-ui/lab";
 
 import { PendingManufacturers } from "./PendingManufacturers";
 import React from "react";
@@ -20,7 +21,13 @@ const useStyles = makeStyles({
 
 export function Admin(): ReactElement {
   const [
-    { contract, from, verifiedManufacturers, pendingManufacturers },
+    {
+      contract,
+      from,
+      verifiedManufacturers,
+      pendingManufacturers,
+      loadingManufacturerApprove,
+    },
     dispatch,
   ] = useAppContext();
   const [loading, setLoading] = useState(false);
@@ -83,9 +90,14 @@ export function Admin(): ReactElement {
   }: PendingManufacturer) => {
     if (contract && from) {
       try {
+        dispatch({
+          type: "LOADING_MANUFACTURER_APPROVE",
+          manufacturer: { address },
+        });
         await contract.methods
           .approveManufacturer(address, amount)
           .send({ from, gas: 300000 });
+        dispatch({ type: "LOADING_MANUFACTURER_APPROVE", manufacturer: null });
         dispatch({ type: "ACCEPT_MANUFACTURER", manufacturer: { address } });
       } catch (error) {
         setError(
@@ -132,6 +144,11 @@ export function Admin(): ReactElement {
         }}
       />
       <VerifiedManufacturers manufacturers={verifiedManufacturers!!} />
+      <Snackbar open={!!loadingManufacturerApprove}>
+        <Alert severity="info">
+          Waiting for a transaction to accept manufacturer.
+        </Alert>
+      </Snackbar>
     </>
   );
 }

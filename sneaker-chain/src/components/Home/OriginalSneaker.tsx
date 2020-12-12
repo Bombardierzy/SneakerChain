@@ -6,6 +6,7 @@ import React from "react";
 import { Sneaker } from "../../models/models";
 import Typography from "@material-ui/core/Typography";
 import { makeStyles } from "@material-ui/core/styles";
+import BarCode from "./BarCode";
 
 const useStyles = makeStyles({
   root: {
@@ -24,6 +25,9 @@ const useStyles = makeStyles({
   },
   actions: {
     justifyContent: "center",
+  },
+  barCode: {
+    textAlign: "center",
   },
 });
 
@@ -58,12 +62,12 @@ export default function OriginalSneaker({
           Owner: <br />
           {sneaker.owner}
         </Typography>
-        <Typography variant="body2" component="p">
-          Model Id: {sneaker.modelId}
-        </Typography>
-        <Typography variant="body2" component="p">
+        <Typography variant="body2" component="p" color="textSecondary">
           Size: {sneaker.size}
         </Typography>
+        <div className={classes.barCode}>
+          <BarCode value={sneaker.modelId} />
+        </div>
       </CardContent>
       <CardActions className={classes.actions}>
         <Button size="small" onClick={onNext}>

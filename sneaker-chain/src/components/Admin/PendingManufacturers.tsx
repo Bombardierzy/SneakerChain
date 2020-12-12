@@ -8,12 +8,14 @@ import {
   TableRow,
   Typography,
   makeStyles,
+  CircularProgress,
 } from "@material-ui/core";
 import { ReactElement, useState } from "react";
 
 import { GasReminderDialog } from "./GasReminderDialog";
 import { PendingManufacturer } from "../../models/models";
 import { web3 } from "../../Contract";
+import { useAppContext } from "../../contexts/appContext";
 
 const useStyles = makeStyles({
   table: {
@@ -44,6 +46,7 @@ export function PendingManufacturers({
   onDeny,
   onAccept,
 }: PendingManufacturersProps): ReactElement {
+  const [{ loadingManufacturerApprove }] = useAppContext();
   const [actionDialog, setActionDialog] = useState<ActionDialog | null>(null);
   const classes = useStyles();
 
@@ -69,32 +72,40 @@ export function PendingManufacturers({
                   {web3.utils.fromWei(amount, "ether")}
                 </TableCell>
                 <TableCell align="center">
-                  <Button
-                    className="mr-2"
-                    variant="contained"
-                    color="primary"
-                    onClick={() =>
-                      setActionDialog({
-                        accept: true,
-                        manufacturer: { address, amount },
-                      })
-                    }
-                  >
-                    Accept
-                  </Button>
-                  <Button
-                    className="ml-2"
-                    variant="contained"
-                    color="secondary"
-                    onClick={() =>
-                      setActionDialog({
-                        accept: false,
-                        manufacturer: { address, amount },
-                      })
-                    }
-                  >
-                    Deny
-                  </Button>
+                  {loadingManufacturerApprove?.address === address ? (
+                    <CircularProgress size={40} />
+                  ) : (
+                    <>
+                      <Button
+                        className="mr-2"
+                        disabled={!!loadingManufacturerApprove}
+                        variant="contained"
+                        color="primary"
+                        onClick={() =>
+                          setActionDialog({
+                            accept: true,
+                            manufacturer: { address, amount },
+                          })
+                        }
+                      >
+                        Accept
+                      </Button>
+                      <Button
+                        className="ml-2"
+                        disabled={!!loadingManufacturerApprove}
+                        variant="contained"
+                        color="secondary"
+                        onClick={() =>
+                          setActionDialog({
+                            accept: false,
+                            manufacturer: { address, amount },
+                          })
+                        }
+                      >
+                        Deny
+                      </Button>
+                    </>
+                  )}
                 </TableCell>
               </TableRow>
             ))}

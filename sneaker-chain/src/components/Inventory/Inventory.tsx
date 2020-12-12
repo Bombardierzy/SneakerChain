@@ -23,7 +23,7 @@ import { Sneaker } from "../../models/models";
 import { useAccount } from "../../hooks/useAccount";
 import { useAppContext } from "../../contexts/appContext";
 import { useForm } from "react-hook-form";
-import { web3 } from "../../Contract";
+import { CircularProgress } from "@material-ui/core";
 
 const useStyles = makeStyles({
   table: {
@@ -35,6 +35,11 @@ export function Inventory(): ReactElement {
   const [{ contract, from }, dispatch] = useAppContext();
   const classes = useStyles();
   const [activeSneaker, setActiveSneaker] = useState<Sneaker | null>(null);
+
+  const [
+    transferringSneaker,
+    setTransferringSneaker,
+  ] = useState<Sneaker | null>(null);
 
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
@@ -52,9 +57,11 @@ export function Inventory(): ReactElement {
   const transferToken = async (sneaker: Sneaker, to: string) => {
     if (contract && from) {
       try {
+        setTransferringSneaker(sneaker);
         await contract.methods
           .transferFrom(from, to, sneaker.token)
           .send({ from, gas: 200000 });
+        setTransferringSneaker(null);
         dispatch({ type: "REMOVE_SNEAKER", sneaker: sneaker });
         setSuccess(true);
       } catch (error) {
@@ -93,15 +100,21 @@ export function Inventory(): ReactElement {
                 <TableCell align="center">{row.manufacturer}</TableCell>
                 <TableCell align="center">{row.size}</TableCell>
                 <TableCell align="center">
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    onClick={() => {
-                      setActiveSneaker(row);
-                    }}
-                  >
-                    Transfer ownership
-                  </Button>
+                  {transferringSneaker?.modelId === row.modelId ? (
+                    <CircularProgress size={40} />
+                  ) : (
+                    <Button
+                      variant="contained"
+                      disabled={!!transferringSneaker}
+                      color="primary"
+                      onClick={() => {
+                        setActiveSneaker(row);
+                        console.log(row);
+                      }}
+                    >
+                      Transfer ownership
+                    </Button>
+                  )}
                 </TableCell>
               </TableRow>
             ))}
@@ -172,8 +185,11 @@ export function Inventory(): ReactElement {
         autoHideDuration={5000}
       >
         <Alert severity="success">
-          Token's ownership has been transfered to given address!
+          Token's ownership has been transferred to given address!
         </Alert>
+      </Snackbar>
+      <Snackbar open={!!transferringSneaker}>
+        <Alert severity="info">Waiting for a token to be transferred.</Alert>
       </Snackbar>
     </>
   );
