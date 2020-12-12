@@ -29,7 +29,7 @@ You can get 1 ETH by requesting it on [this website](https://faucet.ropsten.be/)
 
 
 ## Application
-Application is available at given address: 
+Application is available at given address: https://Bombardierzy.github.io/SneakerChain
 
 
 
