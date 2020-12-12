@@ -10,6 +10,7 @@ export const useAccount = () => {
     if (!account && contract && from) {
       const fetchAccountInfo = async () => {
         try {
+          const account = await window.ethereum.enable();
           const isAdmin = await contract.methods
             .hasRole(web3.utils.keccak256("ADMIN_ROLE"), from)
             .call();

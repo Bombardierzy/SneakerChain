@@ -3,7 +3,7 @@ import Web3 from "web3";
 import { cryptoSneakerAbi } from "./abis/abis";
 
 export const web3 = new Web3(
-  new Web3.providers.HttpProvider("http://localhost:8545")
+  window.ethereum
 );
 
 export function loadCryptoSneakerContract(address: string): CryptoSneaker {

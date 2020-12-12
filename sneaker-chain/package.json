@@ -2,6 +2,7 @@
   "name": "sneaker-chain",
   "version": "0.1.0",
   "private": true,
+  "homepage": "https://Bombardierzy.github.io/SneakerChain",
   "dependencies": {
     "@material-ui/core": "^4.11.1",
     "@material-ui/icons": "^4.9.1",
@@ -32,7 +33,9 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d build"
   },
   "eslintConfig": {
     "extends": [
@@ -55,6 +58,7 @@
   "devDependencies": {
     "@types/react-fade-in": "^0.1.0",
     "@types/react-typing-animation": "^1.6.2",
+    "gh-pages": "^3.1.0",
     "prettier": "^2.2.1",
     "typescript": "^4.1.2"
   }

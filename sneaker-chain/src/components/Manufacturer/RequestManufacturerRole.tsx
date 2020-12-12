@@ -11,6 +11,7 @@ import { Manufacturer } from "../../models/models";
 import { ReactElement } from "react";
 import { makeStyles } from "@material-ui/core";
 import { useAppContext } from "../../contexts/appContext";
+import { web3 } from "../../Contract";
 
 const useStyles = makeStyles({
   header: {

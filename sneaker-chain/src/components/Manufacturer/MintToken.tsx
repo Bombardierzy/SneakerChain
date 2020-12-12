@@ -1,5 +1,6 @@
 import {
   Button,
+  CircularProgress,
   Container,
   Grid,
   Snackbar,
@@ -9,7 +10,6 @@ import {
 import { ReactElement, useState } from "react";
 
 import { Alert } from "@material-ui/lab";
-import { Sneaker } from "../../models/models";
 import { makeStyles } from "@material-ui/core";
 import { useAppContext } from "../../contexts/appContext";
 import { useForm } from "react-hook-form";
@@ -51,6 +51,7 @@ export function MintToken(): ReactElement {
   const { register, errors, reset, handleSubmit } = useForm();
 
   const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
 
   const onSubmit = (data: MintTokenInformation) => {
@@ -61,9 +62,11 @@ export function MintToken(): ReactElement {
   const mintToken = async ({ modelId, name, size }: MintTokenInformation) => {
     if (contract && from) {
       try {
+        setLoading(true);
         const result = await contract.methods
           .mint(modelId, name, size.toString())
           .send({ from, gas: 1000000 });
+        setLoading(false);
         // const result = await contract.methods.mint(modelId, name, size.toString()).send({from, gas: 10});
         const { tokenId } = result?.events?.Transfer.returnValues || {
           tokenId: "",
@@ -100,7 +103,7 @@ export function MintToken(): ReactElement {
               error={errors.modelId}
               helperText={
                 (errors.modelId &&
-                  (errors.name.type === "required"
+                  (errors.modelId.type === "required"
                     ? "Model Id is required"
                     : "Model Id has to have between 5 and 15 characters")) ||
                 ""
@@ -143,9 +146,11 @@ export function MintToken(): ReactElement {
               className={classes.field}
             />
             <div className="text-center mt-4">
+              {loading ? <CircularProgress size={40} /> : 
               <Button type="submit" variant="contained" color="primary">
                 Submit
               </Button>
+              }
             </div>
           </form>
         </Grid>
@@ -156,6 +161,11 @@ export function MintToken(): ReactElement {
         autoHideDuration={5000}
       >
         <Alert severity="error">{error || ""}</Alert>
+      </Snackbar>
+      <Snackbar
+        open={loading}
+      >
+        <Alert severity="info">Waiting for a token to be mined by the network!</Alert>
       </Snackbar>
       <Snackbar
         open={success}
