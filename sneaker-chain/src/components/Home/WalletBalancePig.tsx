@@ -30,7 +30,7 @@ export function WalletBalancePig(props: { amount: number }): ReactElement {
       <Typography variant="h1" className={classes.header}>
         Wallet Balance
       </Typography>
-      <img alt="Piggy" src="./piggy.png" className={classes.piggy} />
+      <img alt="Piggy" src="images/piggy.png" className={classes.piggy} />
       <br />
       <CountUp
         start={0}
