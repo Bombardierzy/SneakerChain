@@ -15,6 +15,8 @@ import { web3 } from "../../Contract";
 import { useState } from "react";
 import React from "react";
 import { CircularProgress } from "@material-ui/core";
+import { Snackbar } from "@material-ui/core";
+import { Alert } from "@material-ui/lab";
 
 const useStyles = makeStyles({
   header: {
@@ -98,6 +100,9 @@ export function RequestManufacturerRole({
           </form>
         </Grid>
       </Container>
+      <Snackbar open={loading}>
+        <Alert severity="info">Waiting for processing your request!</Alert>
+      </Snackbar>
     </div>
   );
 }
