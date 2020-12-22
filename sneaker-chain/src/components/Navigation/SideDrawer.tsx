@@ -22,6 +22,7 @@ interface SideDrawerProps {
   open: boolean;
   toggleOpen: () => void;
 }
+
 export default function SideDrawer({ open, toggleOpen }: SideDrawerProps) {
   const classes = useStyles();
   const account = useAccount();
